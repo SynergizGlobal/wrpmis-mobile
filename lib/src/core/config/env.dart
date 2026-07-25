@@ -1,0 +1,4 @@
+enum Env {
+  qa,
+  prod,
+}
