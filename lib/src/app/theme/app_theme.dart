@@ -24,22 +24,22 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color summaryCard;
 
   static const AppPalette light = AppPalette(
-    loginBackground: Color(0xFFB45F06), // rgb(180, 95, 6)
+    loginBackground: Color(0xFFD58D54),
     loginTitle: Color(0xFFFFFFFF),
     loginSecondaryText: Color(0xFFF5E6D8),
     actionLink: Color(0xFFFFFFFF),
-    loginButton: Color(0xFF8A4805),
+    loginButton: Color(0xFFB87242),
     avatarFill: Color(0xFFF0DCC8),
     avatarText: Color(0xFF5C3317),
     summaryCard: Color(0xFFF3E0D0),
   );
 
   static const AppPalette dark = AppPalette(
-    loginBackground: Color(0xFF2A1C14),
+    loginBackground: Color(0xFFD58D54),
     loginTitle: Color(0xFFF8EDE3),
     loginSecondaryText: Color(0xFFD4B8A0),
     actionLink: Color(0xFFE8B88A),
-    loginButton: Color(0xFFC47A3A),
+    loginButton: Color(0xFFD58D54),
     avatarFill: Color(0xFF3D2A1E),
     avatarText: Color(0xFFF8EDE3),
     summaryCard: Color(0xFF3D2A1E),
@@ -90,8 +90,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
 class AppTheme {
   const AppTheme._();
 
-  /// Primary brand — rgb(180, 95, 6) → #B45F06.
-  static const Color brandPrimary = Color(0xFFB45F06);
+  /// Primary brand — #D58D54 (rgb 213, 141, 84).
+  static const Color brandPrimary = Color(0xFFD58D54);
   static const Color brandAccent = Color(0xFFD71920);
   static const Color scaffoldLight = Color(0xFFFFEFE2);
 
@@ -164,7 +164,7 @@ class AppTheme {
       seedColor: brandPrimary,
       brightness: Brightness.dark,
     ).copyWith(
-      primary: const Color(0xFFD4925A),
+      primary: const Color(0xFFE0A06A),
       onPrimary: Colors.black,
       secondary: const Color(0xFFFF6B6B),
       surface: const Color(0xFF1C1612),

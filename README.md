@@ -15,7 +15,17 @@ Western Railways Project Management Information System — Flutter app for Andro
 | Android | `com.synergiz.wr.pmis` | **targetSdk / compileSdk 36 (Android 16)**, minSdk 24 |
 | iOS | `com.synergiz.wr.pmis` | Cleartext ATS enabled for current QA host |
 
-## Run
+## User feedback
+
+Use `GlobalDialog` for all user messages — **never** use `SnackBar`, `Toast`, or `ScaffoldMessenger`.
+
+```dart
+await GlobalDialog.info('Message', title: 'Title');
+await GlobalDialog.error('Something went wrong.');
+await GlobalDialog.success('Saved successfully.');
+final bool ok = await GlobalDialog.confirm(message: 'Are you sure?');
+```
+
 
 ```bash
 flutter pub get

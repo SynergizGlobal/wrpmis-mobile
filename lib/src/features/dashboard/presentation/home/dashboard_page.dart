@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/constants/app_constants.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_action_card.dart';
+import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
 import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/home_dashboard_data.dart';
@@ -146,30 +147,6 @@ class _HomeSectionView extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Image.asset('assets/wr_logo.png', width: 42, height: 42),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  AppConstants.orgName,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ),
-              SvgPicture.asset(
-                'assets/world_map.svg',
-                width: 28,
-                height: 28,
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
           async.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: 48),
@@ -230,10 +207,9 @@ class _HomeSectionView extends ConsumerWidget {
                           title: '${type.name} (${type.cumulativeCount})',
                           icon: Icons.account_tree_outlined,
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${type.name} — coming next'),
-                              ),
+                            GlobalDialog.info(
+                              '${type.name} — coming next',
+                              title: type.name,
                             );
                           },
                         ),
@@ -337,8 +313,9 @@ class _UpdateFormsSectionView extends ConsumerWidget {
 
   void _openForm(BuildContext context, UpdateFormItem item) {
     if (!item.hasSubMenus) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${item.formName} — native form coming soon')),
+      GlobalDialog.info(
+        '${item.formName} — native form coming soon',
+        title: item.formName,
       );
       return;
     }
@@ -366,12 +343,9 @@ class _UpdateFormsSectionView extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${sub.formName} — native form coming soon',
-                        ),
-                      ),
+                    GlobalDialog.info(
+                      '${sub.formName} — native form coming soon',
+                      title: sub.formName,
                     );
                   },
                 );
@@ -417,8 +391,9 @@ class _PlaceholderForms extends StatelessWidget {
               title: name,
               icon: Icons.edit_note_outlined,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$name — native form coming soon')),
+                GlobalDialog.info(
+                  '$name — native form coming soon',
+                  title: name,
                 );
               },
             ),
