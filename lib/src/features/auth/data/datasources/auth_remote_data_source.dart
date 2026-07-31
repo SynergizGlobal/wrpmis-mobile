@@ -70,6 +70,45 @@ class AuthRemoteDataSource {
     );
   }
 
+  static final Options _unauthenticatedOptions = Options(
+    extra: const <String, dynamic>{'skipAuth': true},
+  );
+
+  Future<void> sendForgotPasswordOtp({required String emailId}) async {
+    await _dio.post<Map<String, dynamic>>(
+      ApiConstants.forgotSendOtpPath,
+      data: <String, dynamic>{'emailId': emailId},
+      options: _unauthenticatedOptions,
+    );
+  }
+
+  Future<void> verifyForgotPasswordOtp({
+    required String emailId,
+    required String otp,
+  }) async {
+    await _dio.post<Map<String, dynamic>>(
+      ApiConstants.forgotVerifyOtpPath,
+      data: <String, dynamic>{'emailId': emailId, 'otp': otp},
+      options: _unauthenticatedOptions,
+    );
+  }
+
+  Future<void> resetForgotPassword({
+    required String emailId,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    await _dio.post<Map<String, dynamic>>(
+      ApiConstants.forgotResetPasswordPath,
+      data: <String, dynamic>{
+        'emailId': emailId,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword,
+      },
+      options: _unauthenticatedOptions,
+    );
+  }
+
   String? _sessionIdFrom({
     required String? locationHeader,
     required List<String>? setCookie,

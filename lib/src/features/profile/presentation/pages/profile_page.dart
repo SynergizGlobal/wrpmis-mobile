@@ -6,6 +6,7 @@ import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_action_card.dart';
 import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
 import 'package:wr_pmis_mobile/src/features/settings/presentation/pages/settings_page.dart';
 
@@ -77,6 +78,13 @@ class ProfilePage extends ConsumerWidget {
                           : '-',
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                AppActionCard(
+                  title: 'Forgot Password',
+                  icon: Icons.lock_reset_rounded,
+                  onTap: () =>
+                      context.pushNamed(ForgotPasswordPage.routeName),
                 ),
                 const SizedBox(height: 12),
                 AppActionCard(

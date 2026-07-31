@@ -5,6 +5,7 @@ import 'package:wr_pmis_mobile/src/app/router/go_router_refresh.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
 import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
 import 'package:wr_pmis_mobile/src/features/profile/presentation/pages/profile_page.dart';
@@ -33,11 +34,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           container.read(authControllerProvider).valueOrNull != null;
       final String loc = state.matchedLocation;
 
-      final bool isPublic = loc == LoginPage.routePath;
+      final bool isPublic = loc == LoginPage.routePath ||
+          loc == ForgotPasswordPage.routePath;
       if (!loggedIn && !isPublic) {
         return LoginPage.routePath;
       }
-      if (loggedIn && isPublic) {
+      if (loggedIn && loc == LoginPage.routePath) {
         return DashboardPage.routePath;
       }
       return null;
@@ -48,6 +50,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: LoginPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const LoginPage(),
+      ),
+      GoRoute(
+        path: ForgotPasswordPage.routePath,
+        name: ForgotPasswordPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ForgotPasswordPage(),
       ),
       GoRoute(
         path: DashboardPage.routePath,

@@ -38,6 +38,53 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(Failure(error.toString()));
     }
   }
+
+  @override
+  Future<Result<void>> sendForgotPasswordOtp({required String emailId}) async {
+    try {
+      await _remote.sendForgotPasswordOtp(emailId: emailId);
+      return const Right(null);
+    } on DioException catch (error) {
+      return Left(Failure(error.message ?? 'Unable to send OTP'));
+    } catch (error) {
+      return Left(Failure(error.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> verifyForgotPasswordOtp({
+    required String emailId,
+    required String otp,
+  }) async {
+    try {
+      await _remote.verifyForgotPasswordOtp(emailId: emailId, otp: otp);
+      return const Right(null);
+    } on DioException catch (error) {
+      return Left(Failure(error.message ?? 'Invalid OTP'));
+    } catch (error) {
+      return Left(Failure(error.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> resetForgotPassword({
+    required String emailId,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _remote.resetForgotPassword(
+        emailId: emailId,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+      return const Right(null);
+    } on DioException catch (error) {
+      return Left(Failure(error.message ?? 'Unable to reset password'));
+    } catch (error) {
+      return Left(Failure(error.toString()));
+    }
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

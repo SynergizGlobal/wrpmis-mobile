@@ -10,6 +10,7 @@ import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
 import 'package:wr_pmis_mobile/src/core/result/failure.dart';
 import 'package:wr_pmis_mobile/src/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -323,9 +324,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 alignment: Alignment.center,
                                 child: TextButton(
                                   onPressed: () {
-                                    GlobalDialog.info(
-                                      'Forgot password will be available soon.',
-                                      title: 'Forgot Password',
+                                    context.pushNamed(
+                                      ForgotPasswordPage.routeName,
                                     );
                                   },
                                   style: TextButton.styleFrom(
