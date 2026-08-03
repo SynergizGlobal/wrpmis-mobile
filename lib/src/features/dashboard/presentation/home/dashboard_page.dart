@@ -13,6 +13,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/report_men
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_module.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/work_category_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/providers/home_dashboard_provider.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
 import 'package:wr_pmis_mobile/src/features/profile/presentation/pages/profile_page.dart';
 
 enum _HomeSection { home, modules, works, updateForms, reports }
@@ -293,87 +294,84 @@ class _HomeSectionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(homeDashboardProvider);
-    final AppPalette palette =
-        Theme.of(context).extension<AppPalette>() ?? AppPalette.light;
 
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(homeDashboardProvider),
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: <Widget>[
-          async.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (Object error, StackTrace stack) => _ErrorCard(
+      child: async.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const <Widget>[
+            SizedBox(height: 120),
+            Center(child: CircularProgressIndicator()),
+          ],
+        ),
+        error: (Object error, StackTrace stack) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: <Widget>[
+            _ErrorCard(
               message: error.toString(),
               onRetry: () => ref.invalidate(homeDashboardProvider),
             ),
-            data: (HomeDashboardData data) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: _SummaryCard(
-                          label: 'Projects',
-                          value: '${data.overview.projectsCount}',
-                          color: palette.summaryCard,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _SummaryCard(
-                          label: 'Length',
-                          value:
-                              '${data.overview.totalLength.toStringAsFixed(2)} km',
-                          color: palette.summaryCard,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _SummaryCard(
-                          label: 'Commissioned',
-                          value:
-                              '${data.overview.commissionedLength.toStringAsFixed(2)} km',
-                          color: palette.summaryCard,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Project categories',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  if (data.projectTypes.isEmpty)
-                    const Text('No project categories available yet.')
-                  else
-                    ...data.projectTypes.map((HomeProjectType type) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: AppActionCard(
-                          title: '${type.name} (${type.cumulativeCount})',
-                          icon: Icons.account_tree_outlined,
-                          onTap: () {
-                            GlobalDialog.info(
-                              '${type.name} — coming next',
-                              title: type.name,
+          ],
+        ),
+        data: (HomeDashboardData data) {
+          final int derivedProjectsCount = data.projectTypes.fold<int>(
+            0,
+            (int sum, HomeProjectType type) => sum + type.cumulativeCount,
+          );
+          final int totalProjects = data.overview.projectsCount > 0
+              ? data.overview.projectsCount
+              : derivedProjectsCount;
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Column(
+              children: <Widget>[
+                _HomeSummaryStats(
+                  projectsCount: totalProjects,
+                  totalLength: data.overview.totalLength,
+                  commissionedLength: data.overview.commissionedLength,
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: data.projectTypes.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const <Widget>[
+                            AppActionCard(
+                              title: 'No project categories available yet.',
+                              showLeading: false,
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: data.projectTypes.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (BuildContext context, int index) {
+                            final HomeProjectType type =
+                                data.projectTypes[index];
+                            return AppActionCard(
+                              title:
+                                  '${type.name} (${type.cumulativeCount})',
+                              showLeading: false,
+                              titleMaxLines: 2,
+                              onTap: () {
+                                context.pushNamed(
+                                  ProjectDetailsPage.routeName,
+                                  extra: type.name,
+                                );
+                              },
                             );
                           },
                         ),
-                      );
-                    }),
-                ],
-              );
-            },
-          ),
-        ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -530,47 +528,89 @@ class _UpdateFormModuleIcon extends StatelessWidget {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
+class _HomeSummaryStats extends StatelessWidget {
+  const _HomeSummaryStats({
+    required this.projectsCount,
+    required this.totalLength,
+    required this.commissionedLength,
+  });
+
+  final int projectsCount;
+  final double totalLength;
+  final double commissionedLength;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: _SummaryStatCard(
+            label: 'Projects',
+            value: projectsCount.toString(),
+            icon: Icons.approval_rounded,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _SummaryStatCard(
+            label: 'Length',
+            value: '${totalLength.toStringAsFixed(2)} km',
+            icon: Icons.straighten_rounded,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _SummaryStatCard(
+            label: 'Commissioned',
+            value: '${commissionedLength.toStringAsFixed(2)} km',
+            icon: Icons.track_changes_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryStatCard extends StatelessWidget {
+  const _SummaryStatCard({
     required this.label,
     required this.value,
-    required this.color,
+    required this.icon,
   });
 
   final String label;
   final String value;
-  final Color color;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: color,
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
+          Icon(icon, size: 18, color: colorScheme.primary),
           const SizedBox(height: 4),
           Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 2),
+          Text(
             label,
-            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurfaceVariant,
                 ),
           ),
         ],

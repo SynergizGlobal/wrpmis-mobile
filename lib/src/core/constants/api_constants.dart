@@ -13,6 +13,8 @@ class ApiConstants {
   static const String projectListPath = '/projects/api/getProjectList';
   static const String projectListByTypePath =
       '/projects/api/getProjectListByType';
+  /// Authenticated projects list for Home (requires JSESSIONID).
+  static const String projectsApiPath = '/api/projects';
   static const String updateFormsPath = '/forms/api/getUpdateForms';
 
   static const Duration connectTimeout = Duration(seconds: 20);

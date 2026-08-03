@@ -4,5 +4,8 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_for
 
 abstract class DashboardRepository {
   Future<Result<HomeDashboardData>> getHomeDashboardData();
+  Future<Result<ProjectDetailsData>> getProjectDetailsByType(
+    String projectTypeName,
+  );
   Future<Result<List<UpdateFormItem>>> getUpdateForms();
 }
