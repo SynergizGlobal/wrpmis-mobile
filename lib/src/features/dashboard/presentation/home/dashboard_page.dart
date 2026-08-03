@@ -13,7 +13,11 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/report_men
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_module.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/work_category_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/providers/home_dashboard_provider.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/technical_assistance_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_page.dart';
 import 'package:wr_pmis_mobile/src/features/profile/presentation/pages/profile_page.dart';
 
 enum _HomeSection { home, modules, works, updateForms, reports }
@@ -479,7 +483,7 @@ class _UpdateFormsSectionView extends StatelessWidget {
               title: module.title,
               titleMaxLines: 2,
               leftPlaceholder: _UpdateFormModuleIcon(module: module),
-              onTap: () => _openModule(module),
+              onTap: () => _openModule(context, module),
             ),
           );
         }),
@@ -487,11 +491,85 @@ class _UpdateFormsSectionView extends StatelessWidget {
     );
   }
 
-  void _openModule(UpdateFormModule module) {
-    GlobalDialog.info(
-      '${module.title} forms will open here next.',
-      title: module.title,
+  Future<void> _openModule(
+    BuildContext context,
+    UpdateFormModule module,
+  ) async {
+    final List<UpdateFormSubItem> subItems = module.subItems;
+    if (subItems.isEmpty) {
+      GlobalDialog.info(
+        '${module.title} forms will open here next.',
+        title: module.title,
+      );
+      return;
+    }
+
+    if (subItems.length == 1) {
+      _openSubItem(context, subItems.first);
+      return;
+    }
+
+    final UpdateFormSubItem? selected =
+        await showModalBottomSheet<UpdateFormSubItem>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 18),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: subItems.length,
+            separatorBuilder: (BuildContext context, int _) => Divider(
+              height: 1,
+              thickness: 0.8,
+              color: Theme.of(context)
+                  .colorScheme
+                  .outlineVariant
+                  .withValues(alpha: 0.55),
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              final UpdateFormSubItem sub = subItems[index];
+              return ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: Icon(sub.icon),
+                title: Text(sub.title),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).pop(sub),
+              );
+            },
+          ),
+        );
+      },
     );
+    if (!context.mounted || selected == null) {
+      return;
+    }
+    _openSubItem(context, selected);
+  }
+
+  void _openSubItem(BuildContext context, UpdateFormSubItem item) {
+    switch (item.id) {
+      case 'add_project':
+        context.pushNamed(AddProjectPage.routeName);
+        return;
+      case 'structure':
+        context.pushNamed(StructurePage.routeName);
+        return;
+      case 'update_structure':
+        context.pushNamed(UpdateStructurePage.routeName);
+        return;
+      case 'technical_assistance':
+        context.pushNamed(TechnicalAssistancePage.routeName);
+        return;
+      default:
+        GlobalDialog.info(
+          '${item.title} will open here next.',
+          title: item.title,
+        );
+    }
   }
 }
 

@@ -7,12 +7,14 @@ class UpdateFormModule {
     required this.title,
     required this.icon,
     this.assetIcon,
+    this.subItems = const <UpdateFormSubItem>[],
   });
 
   final String id;
   final String title;
   final IconData icon;
   final String? assetIcon;
+  final List<UpdateFormSubItem> subItems;
 
   static const List<UpdateFormModule> catalog = <UpdateFormModule>[
     UpdateFormModule(
@@ -20,12 +22,36 @@ class UpdateFormModule {
       title: 'Projects',
       icon: Icons.folder_special_outlined,
       assetIcon: 'assets/update_forms_icons/projects.png',
+      subItems: <UpdateFormSubItem>[
+        UpdateFormSubItem(
+          id: 'add_project',
+          title: 'Add Project',
+          icon: Icons.add_box_outlined,
+        ),
+      ],
     ),
     UpdateFormModule(
       id: 'works',
       title: 'Works',
       icon: Icons.engineering_outlined,
       assetIcon: 'assets/update_forms_icons/works.png',
+      subItems: <UpdateFormSubItem>[
+        UpdateFormSubItem(
+          id: 'structure',
+          title: 'Structure',
+          icon: Icons.account_tree_outlined,
+        ),
+        UpdateFormSubItem(
+          id: 'update_structure',
+          title: 'Update Structure',
+          icon: Icons.edit_note_rounded,
+        ),
+        UpdateFormSubItem(
+          id: 'technical_assistance',
+          title: 'Technical Assistance',
+          icon: Icons.support_agent_outlined,
+        ),
+      ],
     ),
     UpdateFormModule(
       id: 'contracts_tenders',
@@ -75,4 +101,16 @@ class UpdateFormModule {
       icon: Icons.notifications_active_outlined,
     ),
   ];
+}
+
+class UpdateFormSubItem {
+  const UpdateFormSubItem({
+    required this.id,
+    required this.title,
+    required this.icon,
+  });
+
+  final String id;
+  final String title;
+  final IconData icon;
 }

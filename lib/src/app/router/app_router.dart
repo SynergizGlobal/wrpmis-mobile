@@ -8,7 +8,11 @@ import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_c
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/technical_assistance_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_page.dart';
 import 'package:wr_pmis_mobile/src/features/profile/presentation/pages/profile_page.dart';
 import 'package:wr_pmis_mobile/src/features/settings/presentation/pages/settings_page.dart';
 
@@ -72,6 +76,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               state.extra is String ? state.extra! as String : 'Projects';
           return ProjectDetailsPage(projectTypeName: projectTypeName);
         },
+      ),
+      GoRoute(
+        path: AddProjectPage.routePath,
+        name: AddProjectPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const AddProjectPage(),
+      ),
+      GoRoute(
+        path: StructurePage.routePath,
+        name: StructurePage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const StructurePage(),
+      ),
+      GoRoute(
+        path: UpdateStructurePage.routePath,
+        name: UpdateStructurePage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const UpdateStructurePage(),
+      ),
+      GoRoute(
+        path: TechnicalAssistancePage.routePath,
+        name: TechnicalAssistancePage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const TechnicalAssistancePage(),
       ),
       GoRoute(
         path: ProfilePage.routePath,
