@@ -92,6 +92,8 @@ class AppTheme {
 
   /// Primary brand — #D58D54 (rgb 213, 141, 84).
   static const Color brandPrimary = Color(0xFFD58D54);
+  /// Slightly deeper ochre for app bars so the orange logo reads clearly on top.
+  static const Color brandAppBar = Color(0xFFC47A48);
   static const Color brandAccent = Color(0xFFD71920);
   static const Color scaffoldLight = Color(0xFFFFEFE2);
 
@@ -142,7 +144,7 @@ class AppTheme {
       ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
-        backgroundColor: brandPrimary,
+        backgroundColor: brandAppBar,
         foregroundColor: Colors.white,
         toolbarHeight: 60,
         elevation: 4,

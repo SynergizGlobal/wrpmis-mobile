@@ -69,19 +69,28 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 12,
+        titleSpacing: 20,
         title: Row(
           children: <Widget>[
-            ClipOval(
-              child: Image.asset(
-                'assets/wr_logo.png',
-                width: 34,
-                height: 34,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Image.asset(
-                  'assets/app_icon.png',
-                  width: 34,
-                  height: 34,
+            Container(
+              width: 50,
+              height: 50,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/indian_railways_logo.png',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

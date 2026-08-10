@@ -24,7 +24,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  static const String _wrLogoAsset = 'assets/wr_logo_panel.png';
+  static const String _wrLogoAsset = 'assets/app_icon.png';
   static const List<String> _carouselAssets = <String>[
     'assets/dashboard_slides/carousel1.webp',
     'assets/dashboard_slides/carousel2.webp',
@@ -153,24 +153,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     children: <Widget>[
                       // 1. Logo on top
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
                         child: Image.asset(
                           _wrLogoAsset,
-                          width: 76,
-                          height: 76,
-                          fit: BoxFit.contain,
+                          width: 88,
+                          height: 88,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(height: 10),

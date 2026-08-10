@@ -45,6 +45,7 @@ Switch QA/Prod in `lib/main.dart` via `Environment.init(Env.qa | Env.prod)`.
 
 Configured in `lib/src/core/constants/api_hosts.dart`:
 
-- QA/Prod (current): `http://203.153.40.44:90/wrpmis/`
+- QA: `http://203.153.40.44:90/wrpmis_qa/`
+- Prod: `http://203.153.40.44:90/wrpmis/`
 
 Endpoints in `lib/src/core/constants/api_constants.dart` (aligned with WCR-style PMIS paths).

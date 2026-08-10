@@ -1,10 +1,10 @@
 class ApiHosts {
   const ApiHosts._();
 
-  /// QA base URL — set when provided.
-  static const String qaBaseUrl = 'http://203.153.40.44:90/wrpmis/';
+  /// QA WR PMIS (`/wrpmis_qa/`).
+  static const String qaBaseUrl = 'http://203.153.40.44:90/wrpmis_qa/';
 
-  /// Production WR PMIS.
+  /// Production WR PMIS (`/wrpmis/`).
   static const String prodBaseUrl = 'http://203.153.40.44:90/wrpmis/';
 
   static Uri originUriFor(String baseUrl) {

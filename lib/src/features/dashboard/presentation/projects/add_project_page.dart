@@ -255,70 +255,81 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
           ),
         ),
         Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: colorScheme.outlineVariant),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                final double width = tableWidth < constraints.maxWidth
-                    ? constraints.maxWidth
-                    : tableWidth;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: width,
-                    child: Column(
-                      children: <Widget>[
-                        _tableHeader(context),
-                        Expanded(
-                          child: pageRows.isEmpty
-                              ? const Center(
-                                  child: Text('No projects found.'),
-                                )
-                              : ListView.builder(
-                                  itemCount: pageRows.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return _tableRow(
-                                      context,
-                                      pageRows[index],
-                                      index,
-                                    );
-                                  },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: colorScheme.outlineVariant),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: LayoutBuilder(
+                      builder: (
+                        BuildContext context,
+                        BoxConstraints constraints,
+                      ) {
+                        final double width = tableWidth < constraints.maxWidth
+                            ? constraints.maxWidth
+                            : tableWidth;
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: width,
+                            child: Column(
+                              children: <Widget>[
+                                _tableHeader(context),
+                                Expanded(
+                                  child: pageRows.isEmpty
+                                      ? const Center(
+                                          child: Text('No projects found.'),
+                                        )
+                                      : ListView.builder(
+                                          itemCount: pageRows.length,
+                                          itemBuilder: (
+                                            BuildContext context,
+                                            int index,
+                                          ) {
+                                            return _tableRow(
+                                              context,
+                                              pageRows[index],
+                                              index,
+                                            );
+                                          },
+                                        ),
                                 ),
-                        ),
-                      ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: 8),
+                AppTablePaginationFooter(
+                  total: total,
+                  startIndex: start,
+                  endIndex: end,
+                  currentPage: _currentPage,
+                  pageCount: pageCount,
+                  pageSize: _pageSize,
+                  pageSizeOptions: _pageSizeOptions,
+                  onPageSizeChanged: (int value) => setState(() {
+                    _pageSize = value;
+                    _currentPage = 0;
+                  }),
+                  onPrevious: _currentPage > 0
+                      ? () => setState(() => _currentPage--)
+                      : null,
+                  onNext:
+                      end < total ? () => setState(() => _currentPage++) : null,
+                ),
+              ],
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: AppTablePaginationFooter(
-            total: total,
-            startIndex: start,
-            endIndex: end,
-            currentPage: _currentPage,
-            pageCount: pageCount,
-            pageSize: _pageSize,
-            pageSizeOptions: _pageSizeOptions,
-            onPageSizeChanged: (int value) => setState(() {
-              _pageSize = value;
-              _currentPage = 0;
-            }),
-            onPrevious: _currentPage > 0
-                ? () => setState(() => _currentPage--)
-                : null,
-            onNext:
-                end < total ? () => setState(() => _currentPage++) : null,
           ),
         ),
       ],
