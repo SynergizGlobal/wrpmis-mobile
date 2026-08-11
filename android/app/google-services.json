@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "841774449823",
+    "project_id": "wr-pmis",
+    "storage_bucket": "wr-pmis.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841774449823:android:2e46e99d9a9232108dceaa",
+        "android_client_info": {
+          "package_name": "com.synergiz.wr.pmis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASYZ5rujyV6zJWJAYwieDlNMNFy7kZDs8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
