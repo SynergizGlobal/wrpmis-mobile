@@ -17,16 +17,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
   Future<Result<HomeDashboardData>> getHomeDashboardData() async {
     try {
       final List<Map<String, dynamic>> apiRows = await _remote.fetchProjects();
-      List<Map<String, dynamic>> summaryRows = const <Map<String, dynamic>>[];
-      try {
-        summaryRows = await _remote.fetchHomeProjectSummaries();
-      } catch (_) {
-        // Home HTML parse is optional; `/api/projects` remains the fallback.
-      }
-
-      final List<HomeProjectItem> projects = _uniqueProjects(
-        summaryRows.isNotEmpty ? summaryRows : apiRows,
-      );
+      final List<HomeProjectItem> projects = _uniqueProjects(apiRows);
 
       return Right(
         HomeDashboardData(
@@ -77,10 +68,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
   ) async {
     try {
       final List<Map<String, dynamic>> apiRows = await _remote.fetchProjects();
-      List<Map<String, dynamic>> summaryRows = const <Map<String, dynamic>>[];
-      try {
-        summaryRows = await _remote.fetchHomeProjectSummaries();
-      } catch (_) {}
 
       final String target = projectTypeName.trim().toLowerCase();
       bool matchesType(Map<String, dynamic> row) {
@@ -107,8 +94,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
       final List<Map<String, dynamic>> filteredItems =
           apiRows.where(matchesType).toList();
-      final List<Map<String, dynamic>> filteredSummaries =
-          summaryRows.where(matchesType).toList();
 
       final List<String> projectNames = <String>[];
       final Set<String> seen = <String>{};
@@ -127,9 +112,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
         }
       }
 
-      for (final Map<String, dynamic> row in filteredSummaries) {
-        collectName(row);
-      }
       for (final Map<String, dynamic> row in filteredItems) {
         collectName(row);
       }

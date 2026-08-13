@@ -15,24 +15,7 @@ final projectListProvider =
       continue;
     }
     final ProjectListItem? existing = byId[item.projectId];
-    byId[item.projectId] =
-        existing == null ? item : existing.merge(item);
-  }
-
-  try {
-    final List<Map<String, dynamic>> summaries =
-        await remote.fetchHomeProjectSummaries();
-    for (final Map<String, dynamic> row in summaries) {
-      final ProjectListItem item = ProjectListItem.fromJson(row);
-      if (item.projectId.isEmpty) {
-        continue;
-      }
-      final ProjectListItem? existing = byId[item.projectId];
-      byId[item.projectId] =
-          existing == null ? item : existing.merge(item);
-    }
-  } catch (_) {
-    // Home summary enrichment is optional.
+    byId[item.projectId] = existing == null ? item : existing.merge(item);
   }
 
   final List<ProjectListItem> items = byId.values.toList()

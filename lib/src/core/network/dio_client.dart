@@ -37,7 +37,8 @@ final dioProvider = Provider<Dio>((ref) {
         requestHeader: true,
         requestBody: true,
         responseHeader: true,
-        responseBody: false,
+        responseBody: true,
+        maxWidth: 120,
       ),
     );
   }
