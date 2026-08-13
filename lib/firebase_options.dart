@@ -33,10 +33,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDsCDObnVEugfNfML8Xrbp6_UkhHwDOJP4',
-    appId: '1:841774449823:ios:83fb92b1d66ae6038dceaa',
+    appId: '1:841774449823:ios:4d2751b30b16679c8dceaa',
     messagingSenderId: '841774449823',
     projectId: 'wr-pmis',
     storageBucket: 'wr-pmis.firebasestorage.app',
-    iosBundleId: 'com.synergiz.wr.pmis',
+    iosBundleId: 'com.synergiz.wrpmismobile',
   );
 }

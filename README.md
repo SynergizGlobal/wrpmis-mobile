@@ -13,7 +13,7 @@ Western Railways Project Management Information System — Flutter app for Andro
 | Platform | Package / Bundle ID | Notes |
 |----------|---------------------|--------|
 | Android | `com.synergiz.wr.pmis` | **targetSdk / compileSdk 36 (Android 16)**, minSdk 24 |
-| iOS | `com.synergiz.wr.pmis` | Cleartext ATS enabled for current QA host |
+| iOS | `com.synergiz.wrpmismobile` | Cleartext ATS enabled for current QA host |
 
 ## User feedback
 

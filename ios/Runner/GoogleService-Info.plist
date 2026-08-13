@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.synergiz.wr.pmis</string>
+	<string>com.synergiz.wrpmismobile</string>
 	<key>PROJECT_ID</key>
 	<string>wr-pmis</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:841774449823:ios:83fb92b1d66ae6038dceaa</string>
+	<string>1:841774449823:ios:4d2751b30b16679c8dceaa</string>
 </dict>
 </plist>
