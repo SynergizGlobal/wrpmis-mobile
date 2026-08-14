@@ -50,7 +50,10 @@ class HomeProjectItem {
           (json['project_name'] ?? json['projectName'] ?? 'Untitled Project')
               .toString(),
       projectTypeId: _nullableString(
-        json['project_type_id'] ?? json['projectTypeId'],
+        json['project_type_id'] ??
+            json['projectTypeId'] ??
+            json['project_type_id_fk'] ??
+            json['projectTypeIdFk'],
       ),
       projectTypeName: _nullableString(
         json['project_type_name'] ?? json['projectTypeName'],

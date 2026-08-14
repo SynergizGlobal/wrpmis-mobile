@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_select_sheet_field.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_table_pagination_footer.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
@@ -19,17 +20,17 @@ class AddProjectPage extends ConsumerStatefulWidget {
 class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   static const List<int> _pageSizeOptions = <int>[5, 10, 25, 50, 100];
   static const List<String> _headers = <String>[
-    'ID',
-    'Name',
-    'Status',
-    'Type',
+    'Project ID',
+    'Project Name',
+    'Project Status',
+    'Project Type',
     'Railway Zone',
-    'Plan Head No.',
-    'Sanctioned Amount',
+    'Plan Head Number',
     'Sanctioned Year',
-    'Sanctioned Date',
+    'Sanctioned Amount',
+    'Sanctioned Commis',
     'Division',
-    'Section',
+    'Sections',
     'Remarks',
     'Action',
   ];
@@ -63,6 +64,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
         ref.watch(projectListProvider);
 
     return Scaffold(
+      backgroundColor: AppTheme.scaffoldLight,
       appBar: AppBar(title: const Text('Project')),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -112,7 +114,6 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
     final int end = total == 0 ? 0 : (start + _pageSize).clamp(0, total);
     final List<ProjectListItem> pageRows =
         total == 0 ? const <ProjectListItem>[] : filtered.sublist(start, end);
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final double tableWidth = _headers.fold<double>(
       0,
       (double sum, String header) => sum + _columnWidth(header),
@@ -174,6 +175,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
                   decoration: InputDecoration(
                     hintText: 'Search...',
                     isDense: true,
+                    prefixIcon: const Icon(Icons.search_rounded),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -241,7 +243,12 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
             child: SizedBox(
               width: 132,
               child: FilledButton.icon(
-                style: _rowButtonStyle,
+                style: _rowButtonStyle.copyWith(
+                  backgroundColor:
+                      const WidgetStatePropertyAll<Color>(AppTheme.brandPrimary),
+                  foregroundColor:
+                      const WidgetStatePropertyAll<Color>(Colors.white),
+                ),
                 onPressed: () {
                   GlobalDialog.info(
                     'Add Project form will open here next.',
@@ -262,9 +269,11 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: colorScheme.outlineVariant),
+                      border: Border.all(
+                        color: Colors.black.withValues(alpha: 0.08),
+                      ),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: LayoutBuilder(
@@ -386,17 +395,16 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   }
 
   Widget _tableHeader(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Container(
-      color: colorScheme.primary,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      color: AppTheme.brandPrimary,
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: _headers
             .map(
               (String title) => _cell(
                 title,
                 width: _columnWidth(title),
-                color: colorScheme.onPrimary,
+                color: Colors.white,
                 weight: FontWeight.w700,
               ),
             )
@@ -406,64 +414,67 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   }
 
   Widget _tableRow(BuildContext context, ProjectListItem row, int index) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color bg = index.isEven
-        ? colorScheme.primary.withValues(alpha: 0.08)
-        : colorScheme.surface;
+    final Color bg = index.isEven ? const Color(0xFFF8E4D6) : Colors.white;
     return Container(
       color: bg,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: <Widget>[
-          _cell(_display(row.projectId), width: _columnWidth('ID')),
-          _cell(_display(row.projectName), width: _columnWidth('Name')),
-          _cell(_display(row.projectStatus), width: _columnWidth('Status')),
-          _cell(_display(row.projectTypeName), width: _columnWidth('Type')),
+          _cell(_display(row.projectId), width: _columnWidth('Project ID')),
+          _cell(_display(row.projectName), width: _columnWidth('Project Name')),
+          _cell(
+            _display(row.projectStatus),
+            width: _columnWidth('Project Status'),
+          ),
+          _cell(
+            _display(row.projectTypeName),
+            width: _columnWidth('Project Type'),
+          ),
           _cell(
             _display(row.railwayZone),
             width: _columnWidth('Railway Zone'),
           ),
           _cell(
             _display(row.planHeadNumber),
-            width: _columnWidth('Plan Head No.'),
-          ),
-          _cell(
-            _display(row.sanctionedAmount),
-            width: _columnWidth('Sanctioned Amount'),
+            width: _columnWidth('Plan Head Number'),
           ),
           _cell(
             _display(row.sanctionedYear),
             width: _columnWidth('Sanctioned Year'),
           ),
           _cell(
+            _formatAmount(row.sanctionedAmount),
+            width: _columnWidth('Sanctioned Amount'),
+          ),
+          _cell(
             _display(row.sanctionedCompletionDate),
-            width: _columnWidth('Sanctioned Date'),
+            width: _columnWidth('Sanctioned Commis'),
           ),
           _cell(_display(row.division), width: _columnWidth('Division')),
-          _cell(_display(row.sections), width: _columnWidth('Section')),
+          _cell(_display(row.sections), width: _columnWidth('Sections')),
           _cell(_display(row.remarks), width: _columnWidth('Remarks')),
           SizedBox(
             width: _columnWidth('Action'),
             child: Center(
-              child: IconButton(
-                tooltip: 'Edit',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 30,
-                  height: 30,
-                ),
-                visualDensity: VisualDensity.compact,
-                splashRadius: 16,
-                onPressed: () {
-                  GlobalDialog.info(
-                    'Edit Project form will open here next.',
-                    title: row.projectName,
-                  );
-                },
-                icon: Icon(
-                  Icons.edit_square,
-                  size: 18,
-                  color: colorScheme.primary,
+              child: Material(
+                color: AppTheme.brandPrimary,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    GlobalDialog.info(
+                      'Edit Project form will open here next.',
+                      title: row.projectName,
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.edit_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -495,26 +506,43 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
 
   String _display(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return '-';
+      return '';
     }
     return value.trim();
   }
 
+  String _formatAmount(String? value) {
+    final String raw = _display(value);
+    if (raw.isEmpty) {
+      return '';
+    }
+    final double? amount = double.tryParse(raw.replaceAll(',', ''));
+    if (amount == null) {
+      return raw;
+    }
+    final List<String> parts = amount.toStringAsFixed(2).split('.');
+    final String whole = parts.first.replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (Match match) => '${match[1]},',
+    );
+    return '${whole}.${parts.last}';
+  }
+
   double _columnWidth(String header) {
     return switch (header) {
-      'ID' => 56,
-      'Name' => 210,
-      'Status' => 96,
-      'Type' => 140,
+      'Project ID' => 92,
+      'Project Name' => 230,
+      'Project Status' => 120,
+      'Project Type' => 170,
       'Railway Zone' => 120,
-      'Plan Head No.' => 120,
-      'Sanctioned Amount' => 155,
+      'Plan Head Number' => 140,
       'Sanctioned Year' => 130,
-      'Sanctioned Date' => 130,
+      'Sanctioned Amount' => 160,
+      'Sanctioned Commis' => 150,
       'Division' => 96,
-      'Section' => 110,
-      'Remarks' => 160,
-      'Action' => 64,
+      'Sections' => 110,
+      'Remarks' => 180,
+      'Action' => 72,
       _ => 100,
     };
   }

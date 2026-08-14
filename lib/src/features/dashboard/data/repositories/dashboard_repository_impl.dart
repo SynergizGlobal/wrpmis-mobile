@@ -79,10 +79,13 @@ class DashboardRepositoryImpl implements DashboardRepository {
         if (rowTypeName == target) {
           return true;
         }
-        final String rowTypeId =
-            (row['project_type_id'] ?? row['projectTypeId'] ?? '')
-                .toString()
-                .trim();
+        final String rowTypeId = (row['project_type_id'] ??
+                row['projectTypeId'] ??
+                row['project_type_id_fk'] ??
+                row['projectTypeIdFk'] ??
+                '')
+            .toString()
+            .trim();
         for (final ({String id, String name}) category
             in HomeDashboardData.canonicalCategories) {
           if (category.name.toLowerCase() == target) {
@@ -116,9 +119,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
         collectName(row);
       }
 
-      final List<ProjectMajorItem> items = filteredItems.map((
-        Map<String, dynamic> row,
-      ) {
+      final List<ProjectMajorItem> items = filteredItems
+          .where(_hasMajorItemData)
+          .map((Map<String, dynamic> row) {
         final String scope = (row['scope'] ?? '-').toString();
         final String completed = (row['completed'] ?? '-').toString();
         return ProjectMajorItem(
@@ -139,6 +142,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
           ),
           tdc: (row['revised_target_date'] ??
                   row['revisedTargetDate'] ??
+                  row['sanctioned_commissioning_date'] ??
                   '-')
               .toString(),
         );
@@ -170,6 +174,23 @@ class DashboardRepositoryImpl implements DashboardRepository {
         Failure('Something went wrong while loading project details.'),
       );
     }
+  }
+
+  bool _hasMajorItemData(Map<String, dynamic> row) {
+    bool present(dynamic value) {
+      if (value == null) {
+        return false;
+      }
+      final String text = value.toString().trim();
+      return text.isNotEmpty && text.toLowerCase() != 'null';
+    }
+
+    return present(row['structure_type']) ||
+        present(row['structureType']) ||
+        present(row['scope']) ||
+        present(row['completed']) ||
+        present(row['physical_progress']) ||
+        present(row['physicalProgress']);
   }
 
   String _unitFrom(String scope, String completed) {
@@ -204,7 +225,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
     return '${percent.toStringAsFixed(2)} %';
   }
 
-  /// `/api/projects` returns major-item rows; collapse to one row per project.
+  /// Project list may include one row per project; collapse by id.
   List<HomeProjectItem> _uniqueProjects(List<Map<String, dynamic>> rows) {
     final Map<String, HomeProjectItem> byId = <String, HomeProjectItem>{};
     for (final Map<String, dynamic> row in rows) {

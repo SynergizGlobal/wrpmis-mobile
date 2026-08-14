@@ -13,7 +13,10 @@ class ApiConstants {
   static const String projectListPath = '/projects/api/getProjectList';
   static const String projectListByTypePath =
       '/projects/api/getProjectListByType';
-  /// Authenticated projects list for Home (requires JSESSIONID).
+  /// Web Update Forms → Projects page (`#project_table`). Same source the browser uses.
+  static const String projectsPagePath = '/project';
+
+  /// REST list. QA currently returns 404; kept for when backend restores it.
   static const String projectsApiPath = '/api/v1/projects/list';
   static const String updateFormsPath = '/forms/api/getUpdateForms';
 
