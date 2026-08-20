@@ -10,6 +10,8 @@ import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.d
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_form_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/technical_assistance_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_page.dart';
@@ -82,6 +84,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AddProjectPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const AddProjectPage(),
+      ),
+      GoRoute(
+        path: ProjectFormPage.routePath,
+        name: ProjectFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final String? projectId =
+              state.extra is String ? state.extra as String : null;
+          return ProjectFormPage(projectId: projectId);
+        },
+      ),
+      GoRoute(
+        path: StructureFormPage.routePath,
+        name: StructureFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final String? structureId =
+              state.extra is String ? state.extra as String : null;
+          return StructureFormPage(structureId: structureId);
+        },
       ),
       GoRoute(
         path: StructurePage.routePath,

@@ -12,6 +12,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.avatarFill,
     required this.avatarText,
     required this.summaryCard,
+    required this.cardSurface,
+    required this.tableRowEven,
+    required this.tableRowOdd,
+    required this.stickyBar,
+    required this.borderSubtle,
+    required this.mutedText,
   });
 
   final Color loginBackground;
@@ -22,6 +28,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color avatarFill;
   final Color avatarText;
   final Color summaryCard;
+  final Color cardSurface;
+  final Color tableRowEven;
+  final Color tableRowOdd;
+  final Color stickyBar;
+  final Color borderSubtle;
+  final Color mutedText;
 
   static const AppPalette light = AppPalette(
     loginBackground: Color(0xFFD58D54),
@@ -32,6 +44,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
     avatarFill: Color(0xFFF0DCC8),
     avatarText: Color(0xFF5C3317),
     summaryCard: Color(0xFFF3E0D0),
+    cardSurface: Color(0xFFFFFFFF),
+    tableRowEven: Color(0xFFF8E4D6),
+    tableRowOdd: Color(0xFFFFFFFF),
+    stickyBar: Color(0xFFFFFFFF),
+    borderSubtle: Color(0x1A000000),
+    mutedText: Color(0x99000000),
   );
 
   static const AppPalette dark = AppPalette(
@@ -43,7 +61,18 @@ class AppPalette extends ThemeExtension<AppPalette> {
     avatarFill: Color(0xFF3D2A1E),
     avatarText: Color(0xFFF8EDE3),
     summaryCard: Color(0xFF3D2A1E),
+    cardSurface: Color(0xFF241C16),
+    tableRowEven: Color(0xFF2E241C),
+    tableRowOdd: Color(0xFF1C1612),
+    stickyBar: Color(0xFF1C1612),
+    borderSubtle: Color(0x33FFFFFF),
+    mutedText: Color(0x99FFFFFF),
   );
+
+  static AppPalette of(BuildContext context) {
+    return Theme.of(context).extension<AppPalette>() ??
+        (Theme.of(context).brightness == Brightness.dark ? dark : light);
+  }
 
   @override
   AppPalette copyWith({
@@ -55,6 +84,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? avatarFill,
     Color? avatarText,
     Color? summaryCard,
+    Color? cardSurface,
+    Color? tableRowEven,
+    Color? tableRowOdd,
+    Color? stickyBar,
+    Color? borderSubtle,
+    Color? mutedText,
   }) {
     return AppPalette(
       loginBackground: loginBackground ?? this.loginBackground,
@@ -65,6 +100,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
       avatarFill: avatarFill ?? this.avatarFill,
       avatarText: avatarText ?? this.avatarText,
       summaryCard: summaryCard ?? this.summaryCard,
+      cardSurface: cardSurface ?? this.cardSurface,
+      tableRowEven: tableRowEven ?? this.tableRowEven,
+      tableRowOdd: tableRowOdd ?? this.tableRowOdd,
+      stickyBar: stickyBar ?? this.stickyBar,
+      borderSubtle: borderSubtle ?? this.borderSubtle,
+      mutedText: mutedText ?? this.mutedText,
     );
   }
 
@@ -83,6 +124,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
       avatarFill: Color.lerp(avatarFill, other.avatarFill, t)!,
       avatarText: Color.lerp(avatarText, other.avatarText, t)!,
       summaryCard: Color.lerp(summaryCard, other.summaryCard, t)!,
+      cardSurface: Color.lerp(cardSurface, other.cardSurface, t)!,
+      tableRowEven: Color.lerp(tableRowEven, other.tableRowEven, t)!,
+      tableRowOdd: Color.lerp(tableRowOdd, other.tableRowOdd, t)!,
+      stickyBar: Color.lerp(stickyBar, other.stickyBar, t)!,
+      borderSubtle: Color.lerp(borderSubtle, other.borderSubtle, t)!,
+      mutedText: Color.lerp(mutedText, other.mutedText, t)!,
     );
   }
 }
@@ -92,6 +139,7 @@ class AppTheme {
 
   /// Primary brand — #D58D54 (rgb 213, 141, 84).
   static const Color brandPrimary = Color(0xFFD58D54);
+
   /// Slightly deeper ochre for app bars so the orange logo reads clearly on top.
   static const Color brandAppBar = Color(0xFFC47A48);
   static const Color brandAccent = Color(0xFFD71920);
@@ -105,6 +153,8 @@ class AppTheme {
       onPrimary: Colors.white,
       secondary: brandAccent,
       surface: Colors.white,
+      onSurface: const Color(0xFF1C1410),
+      surfaceContainerHighest: const Color(0xFFF3E0D0),
     );
     return ThemeData(
       useMaterial3: true,
@@ -112,7 +162,7 @@ class AppTheme {
       scaffoldBackgroundColor: scaffoldLight,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF0F5FA),
+        fillColor: const Color(0xFFF8F1EA),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
@@ -136,7 +186,21 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: brandPrimary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: brandPrimary.withValues(alpha: 0.45),
+          disabledForegroundColor: Colors.white70,
           minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: brandAppBar,
+          side: const BorderSide(color: brandAppBar),
+          minimumSize: const Size.fromHeight(44),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -167,9 +231,12 @@ class AppTheme {
       brightness: Brightness.dark,
     ).copyWith(
       primary: const Color(0xFFE0A06A),
-      onPrimary: Colors.black,
-      secondary: const Color(0xFFFF6B6B),
+      onPrimary: const Color(0xFF1C1410),
+      secondary: const Color(0xFFFF8A80),
       surface: const Color(0xFF1C1612),
+      onSurface: const Color(0xFFF5EBE3),
+      surfaceContainerHighest: const Color(0xFF2E241C),
+      outlineVariant: const Color(0xFF4A3A2E),
     );
     return ThemeData(
       useMaterial3: true,
@@ -178,6 +245,12 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF241C16),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
+        labelStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.85),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
@@ -199,13 +272,42 @@ class AppTheme {
           ),
         ),
       ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.35),
+          disabledForegroundColor:
+              colorScheme.onPrimary.withValues(alpha: 0.6),
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.primary,
+          side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.7)),
+          minimumSize: const Size.fromHeight(44),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: brandAppBar,
+        foregroundColor: Colors.white,
         toolbarHeight: 60,
         elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.4),
         surfaceTintColor: Colors.transparent,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        color: const Color(0xFF241C16),
       ),
       extensions: const <ThemeExtension<dynamic>>[AppPalette.dark],
     );

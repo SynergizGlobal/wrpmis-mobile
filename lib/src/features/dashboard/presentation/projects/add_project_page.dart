@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
-import 'package:wr_pmis_mobile/src/core/widgets/app_select_sheet_field.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_table_pagination_footer.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_list_item.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/providers/project_list_provider.dart';
 
 class AddProjectPage extends ConsumerStatefulWidget {
@@ -36,8 +37,6 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   ];
 
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedStatus;
-  String? _selectedType;
   String _searchQuery = '';
   int _pageSize = 10;
   int _currentPage = 0;
@@ -64,7 +63,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
         ref.watch(projectListProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Project')),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -96,14 +95,8 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   }
 
   Widget _content(BuildContext context, List<ProjectListItem> rows) {
-    final List<String> statusOptions = _options(
-      rows,
-      (ProjectListItem row) => row.projectStatus ?? '',
-    );
-    final List<String> typeOptions = _options(
-      rows,
-      (ProjectListItem row) => row.projectTypeName ?? '',
-    );
+    final AppPalette palette = AppPalette.of(context);
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     final List<ProjectListItem> filtered = _filtered(rows);
     final int total = filtered.length;
     final int pageCount = total == 0 ? 1 : (total / _pageSize).ceil();
@@ -123,142 +116,69 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: AppSelectSheetField<String>(
-                  label: 'Project Status',
-                  title: 'Select Project Status',
-                  items: <String>['All', ...statusOptions],
-                  value: _selectedStatus ?? 'All',
-                  itemLabelBuilder: (String value) => value,
-                  onChanged: (String value) {
-                    setState(() {
-                      _selectedStatus = value == 'All' ? null : value;
-                      _currentPage = 0;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: AppSelectSheetField<String>(
-                  label: 'Project Type',
-                  title: 'Select Project Type',
-                  items: <String>['All', ...typeOptions],
-                  value: _selectedType ?? 'All',
-                  itemLabelBuilder: (String value) => value,
-                  onChanged: (String value) {
-                    setState(() {
-                      _selectedType = value == 'All' ? null : value;
-                      _currentPage = 0;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (String value) {
-                    setState(() {
-                      _searchQuery = value.trim();
-                      _currentPage = 0;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search...',
-                    isDense: true,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (String value) {
+              setState(() {
+                _searchQuery = value.trim();
+                _currentPage = 0;
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              isDense: true,
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchQuery.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear',
+                      onPressed: () => setState(() {
+                        _searchQuery = '';
+                        _currentPage = 0;
+                        _searchController.clear();
+                      }),
+                      icon: const Icon(Icons.close_rounded),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.tonalIcon(
-                style: _rowButtonStyle,
-                onPressed: (_selectedStatus != null ||
-                        _selectedType != null ||
-                        _searchQuery.isNotEmpty)
-                    ? () => setState(() {
-                          _selectedStatus = null;
-                          _selectedType = null;
-                          _searchQuery = '';
-                          _currentPage = 0;
-                          _searchController.clear();
-                        })
-                    : null,
-                icon: const Icon(Icons.filter_alt_off_rounded),
-                label: const Text('Clear'),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: _outlinedRowButtonStyle,
-                  onPressed: filtered.isEmpty
-                      ? null
-                      : () => GlobalDialog.info(
-                            'Excel export will be connected next.',
-                            title: 'Excel',
-                          ),
-                  icon: const Icon(Icons.download_rounded),
-                  label: const Text('Excel'),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: _outlinedRowButtonStyle,
-                  onPressed: filtered.isEmpty
-                      ? null
-                      : () => GlobalDialog.info(
-                            'PDF export will be connected next.',
-                            title: 'PDF',
-                          ),
-                  icon: const Icon(Icons.picture_as_pdf_rounded),
-                  label: const Text('PDF'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              width: 132,
-              child: FilledButton.icon(
-                style: _rowButtonStyle.copyWith(
-                  backgroundColor:
-                      const WidgetStatePropertyAll<Color>(AppTheme.brandPrimary),
-                  foregroundColor:
-                      const WidgetStatePropertyAll<Color>(Colors.white),
-                ),
-                onPressed: () {
-                  GlobalDialog.info(
-                    'Add Project form will open here next.',
-                    title: 'Add Project',
-                  );
-                },
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Add'),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: _outlinedRowButtonStyle,
+                  onPressed: filtered.isEmpty
+                      ? null
+                      : () => GlobalDialog.info(
+                            'Export will be connected next.',
+                            title: 'Export',
+                          ),
+                  icon: const Icon(Icons.download_rounded),
+                  label: const Text('Export'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.icon(
+                  style: _rowButtonStyle.copyWith(
+                    backgroundColor:
+                        WidgetStatePropertyAll<Color>(scheme.primary),
+                    foregroundColor:
+                        WidgetStatePropertyAll<Color>(scheme.onPrimary),
+                  ),
+                  onPressed: () {
+                    context.push(ProjectFormPage.routePath);
+                  },
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add'),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -269,11 +189,9 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: palette.cardSurface,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.08),
-                      ),
+                      border: Border.all(color: palette.borderSubtle),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: LayoutBuilder(
@@ -290,11 +208,16 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
                             width: width,
                             child: Column(
                               children: <Widget>[
-                                _tableHeader(context),
+                                _tableHeader(context, scheme),
                                 Expanded(
                                   child: pageRows.isEmpty
-                                      ? const Center(
-                                          child: Text('No projects found.'),
+                                      ? Center(
+                                          child: Text(
+                                            'No projects found.',
+                                            style: TextStyle(
+                                              color: palette.mutedText,
+                                            ),
+                                          ),
                                         )
                                       : ListView.builder(
                                           itemCount: pageRows.length,
@@ -306,6 +229,8 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
                                               context,
                                               pageRows[index],
                                               index,
+                                              palette,
+                                              scheme,
                                             );
                                           },
                                         ),
@@ -347,20 +272,10 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
 
   List<ProjectListItem> _filtered(List<ProjectListItem> rows) {
     final String q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) {
+      return rows;
+    }
     return rows.where((ProjectListItem row) {
-      if (_selectedStatus != null &&
-          (row.projectStatus ?? '').toLowerCase() !=
-              _selectedStatus!.toLowerCase()) {
-        return false;
-      }
-      if (_selectedType != null &&
-          (row.projectTypeName ?? '').toLowerCase() !=
-              _selectedType!.toLowerCase()) {
-        return false;
-      }
-      if (q.isEmpty) {
-        return true;
-      }
       final String haystack = <String?>[
         row.projectId,
         row.projectName,
@@ -379,24 +294,9 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
     }).toList();
   }
 
-  List<String> _options(
-    List<ProjectListItem> rows,
-    String Function(ProjectListItem) getter,
-  ) {
-    final Set<String> values = <String>{};
-    for (final ProjectListItem row in rows) {
-      final String value = getter(row).trim();
-      if (value.isNotEmpty && value != '-') {
-        values.add(value);
-      }
-    }
-    final List<String> list = values.toList()..sort();
-    return list;
-  }
-
-  Widget _tableHeader(BuildContext context) {
+  Widget _tableHeader(BuildContext context, ColorScheme scheme) {
     return Container(
-      color: AppTheme.brandPrimary,
+      color: scheme.primary,
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: _headers
@@ -404,7 +304,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
               (String title) => _cell(
                 title,
                 width: _columnWidth(title),
-                color: Colors.white,
+                color: scheme.onPrimary,
                 weight: FontWeight.w700,
               ),
             )
@@ -413,8 +313,15 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
     );
   }
 
-  Widget _tableRow(BuildContext context, ProjectListItem row, int index) {
-    final Color bg = index.isEven ? const Color(0xFFF8E4D6) : Colors.white;
+  Widget _tableRow(
+    BuildContext context,
+    ProjectListItem row,
+    int index,
+    AppPalette palette,
+    ColorScheme scheme,
+  ) {
+    final Color bg =
+        index.isEven ? palette.tableRowEven : palette.tableRowOdd;
     return Container(
       color: bg,
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -457,22 +364,22 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
             width: _columnWidth('Action'),
             child: Center(
               child: Material(
-                color: AppTheme.brandPrimary,
+                color: scheme.primary,
                 shape: const CircleBorder(),
                 child: InkWell(
                   customBorder: const CircleBorder(),
                   onTap: () {
-                    GlobalDialog.info(
-                      'Edit Project form will open here next.',
-                      title: row.projectName,
+                    context.push(
+                      ProjectFormPage.routePath,
+                      extra: row.projectId,
                     );
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
                     child: Icon(
                       Icons.edit_rounded,
                       size: 16,
-                      color: Colors.white,
+                      color: scheme.onPrimary,
                     ),
                   ),
                 ),
@@ -498,7 +405,10 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
           value,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: color, fontWeight: weight),
+          style: TextStyle(
+            color: color ?? Theme.of(context).colorScheme.onSurface,
+            fontWeight: weight,
+          ),
         ),
       ),
     );
@@ -525,7 +435,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
       RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
       (Match match) => '${match[1]},',
     );
-    return '${whole}.${parts.last}';
+    return '$whole.${parts.last}';
   }
 
   double _columnWidth(String header) {
