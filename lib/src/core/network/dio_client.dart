@@ -6,6 +6,7 @@ import 'package:wr_pmis_mobile/src/app/config/app_config_provider.dart';
 import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/core/network/auth_interceptor.dart';
 import 'package:wr_pmis_mobile/src/core/network/session_cookie_manager.dart';
+import 'package:wr_pmis_mobile/src/core/network/session_cookie_protection_interceptor.dart';
 import 'package:wr_pmis_mobile/src/core/network/user_friendly_error_message.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/providers/auth_token_provider.dart';
 
@@ -14,11 +15,14 @@ final sessionCookieManagerProvider =
   return SessionCookieManager.create();
 });
 
-/// Session-cookie Dio client. Rebuilds once the cookie jar is ready.
+/// Session-cookie Dio client.
+///
+/// Requires [sessionCookieManagerProvider] to be ready (bootstrapped at app
+/// start) so requests never go out without the cookie jar attached.
 final dioProvider = Provider<Dio>((ref) {
   final appConfig = ref.watch(appConfigProvider);
-  final SessionCookieManager? sessionCookieManager =
-      ref.watch(sessionCookieManagerProvider).valueOrNull;
+  final SessionCookieManager sessionCookieManager =
+      ref.watch(sessionCookieManagerProvider).requireValue;
 
   final dio = Dio(
     BaseOptions(
@@ -47,9 +51,10 @@ final dioProvider = Provider<Dio>((ref) {
     AuthInterceptor(() => ref.read(authTokenProvider)),
   );
 
-  if (sessionCookieManager != null) {
-    dio.interceptors.add(sessionCookieManager.asInterceptor());
-  }
+  // CookieManager saves Set-Cookie on response. Protection runs *before* it
+  // (added after → first on response) and strips anonymous JSESSIONID updates.
+  dio.interceptors.add(sessionCookieManager.asInterceptor());
+  dio.interceptors.add(const SessionCookieProtectionInterceptor());
 
   dio.interceptors.add(
     InterceptorsWrapper(

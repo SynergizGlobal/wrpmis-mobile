@@ -64,6 +64,23 @@ class UpdateFormModule {
       title: 'Execution & Monitoring',
       icon: Icons.timeline_outlined,
       assetIcon: 'assets/update_forms_icons/execution_monitoring.png',
+      subItems: <UpdateFormSubItem>[
+        UpdateFormSubItem(
+          id: 'structure_p6_updates',
+          title: 'Structure P6 Updates',
+          icon: Icons.history_edu_outlined,
+        ),
+        UpdateFormSubItem(
+          id: 'new_activities_update',
+          title: 'New Activities Update',
+          icon: Icons.playlist_add_check_outlined,
+        ),
+        UpdateFormSubItem(
+          id: 'modify_actuals',
+          title: 'Modify Actuals',
+          icon: Icons.tune_outlined,
+        ),
+      ],
     ),
     UpdateFormModule(
       id: 'design_drawing',

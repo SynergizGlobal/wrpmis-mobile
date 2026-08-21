@@ -28,7 +28,10 @@ class AuthRemoteDataSource {
         followRedirects: false,
         validateStatus: (int? status) =>
             status != null && status >= 200 && status < 400,
-        extra: const <String, dynamic>{'skipAuth': true},
+        extra: const <String, dynamic>{
+          'skipAuth': true,
+          'allowSetCookie': true,
+        },
       ),
     );
 

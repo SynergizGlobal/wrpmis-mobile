@@ -13,6 +13,9 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/report_men
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_module.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/work_category_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/providers/home_dashboard_provider.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_page.dart';
@@ -572,6 +575,15 @@ class _UpdateFormsSectionView extends StatelessWidget {
         return;
       case 'technical_assistance':
         context.pushNamed(TechnicalAssistancePage.routeName);
+        return;
+      case 'structure_p6_updates':
+        context.pushNamed(StructureP6UpdatesPage.routeName);
+        return;
+      case 'new_activities_update':
+        context.pushNamed(NewActivitiesUpdatePage.routeName);
+        return;
+      case 'modify_actuals':
+        context.pushNamed(ModifyActualsPage.routeName);
         return;
       default:
         GlobalDialog.info(

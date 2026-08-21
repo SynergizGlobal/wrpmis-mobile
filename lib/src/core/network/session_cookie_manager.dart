@@ -24,6 +24,8 @@ class SessionCookieManager {
   }
 
   Future<void> clearSessionCookies() async {
+    // Delete both origin and path-scoped cookies (JSESSIONID Path=/wrpmis_qa).
     await cookieJar.delete(Environment.wrOriginUri);
+    await cookieJar.delete(Uri.parse(Environment.wrBaseUrl));
   }
 }

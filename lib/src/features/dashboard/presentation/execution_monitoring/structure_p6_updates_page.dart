@@ -1,33 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_select_sheet_field.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_table_pagination_footer.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/p6_data_history_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
-import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_form_list_item.dart';
-import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/providers/structure_form_list_providers.dart';
-import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_form_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/providers/p6_data_history_providers.dart';
 
-/// Update Forms → Works → Update Structure (web "Structure Form" list).
-class UpdateStructurePage extends ConsumerStatefulWidget {
-  const UpdateStructurePage({super.key});
+/// Update Forms → Execution & Monitoring → Structure P6 Updates (web "P6 DATA HISTORY").
+class StructureP6UpdatesPage extends ConsumerStatefulWidget {
+  const StructureP6UpdatesPage({super.key});
 
-  static const String routeName = 'update-structure';
-  static const String routePath = '/update-structure';
+  static const String routeName = 'structure-p6-updates';
+  static const String routePath = '/structure-p6-updates';
 
   @override
-  ConsumerState<UpdateStructurePage> createState() =>
-      _UpdateStructurePageState();
+  ConsumerState<StructureP6UpdatesPage> createState() =>
+      _StructureP6UpdatesPageState();
 }
 
-class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
+class _StructureP6UpdatesPageState extends ConsumerState<StructureP6UpdatesPage> {
   static const List<int> _pageSizeOptions = <int>[5, 10, 25, 50, 100];
 
   final TextEditingController _searchController = TextEditingController();
   String? _contractId;
-  String? _structureType;
-  String? _workStatus;
+  String? _uploadType;
+  String? _statusFk;
   String _searchQuery = '';
   int _pageSize = 10;
   int _currentPage = 0;
@@ -38,10 +36,10 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
     super.dispose();
   }
 
-  StructureFormListQuery get _query => StructureFormListQuery(
+  P6DataHistoryListQuery get _query => P6DataHistoryListQuery(
         contractId: _contractId,
-        structureType: _structureType,
-        workStatus: _workStatus,
+        uploadType: _uploadType,
+        statusFk: _statusFk,
         search: _searchQuery,
         page: _currentPage,
         pageSize: _pageSize,
@@ -49,15 +47,15 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
 
   bool get _hasFilters =>
       _contractId != null ||
-      _structureType != null ||
-      _workStatus != null ||
+      _uploadType != null ||
+      _statusFk != null ||
       _searchQuery.isNotEmpty;
 
   void _clearFilters() {
     setState(() {
       _contractId = null;
-      _structureType = null;
-      _workStatus = null;
+      _uploadType = null;
+      _statusFk = null;
       _searchQuery = '';
       _currentPage = 0;
       _searchController.clear();
@@ -69,18 +67,18 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
     final AppPalette palette = AppPalette.of(context);
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final AsyncValue<List<DropdownOption>> contractsAsync =
-        ref.watch(structureFormContractFilterProvider);
+        ref.watch(p6ContractFilterProvider);
     final AsyncValue<List<DropdownOption>> typesAsync =
-        ref.watch(structureFormTypeFilterProvider);
+        ref.watch(p6UploadTypeFilterProvider);
     final AsyncValue<List<DropdownOption>> statusAsync =
-        ref.watch(structureFormWorkStatusFilterProvider);
-    final AsyncValue<StructureFormListResult> listAsync =
-        ref.watch(structureFormListProvider(_query));
+        ref.watch(p6StatusFilterProvider);
+    final AsyncValue<P6DataHistoryListResult> listAsync =
+        ref.watch(p6DataHistoryListProvider(_query));
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Structure Form'),
+        title: const Text('P6 DATA HISTORY'),
       ),
       body: SafeArea(
         child: Column(
@@ -119,7 +117,7 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
                               const SizedBox(height: 10),
                               FilledButton(
                                 onPressed: () => ref.invalidate(
-                                  structureFormListProvider(_query),
+                                  p6DataHistoryListProvider(_query),
                                 ),
                                 child: const Text('Retry'),
                               ),
@@ -130,7 +128,7 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
                     ),
                   ],
                 ),
-                data: (StructureFormListResult page) {
+                data: (P6DataHistoryListResult page) {
                   final int total = page.filteredRecords;
                   final int pageCount =
                       total == 0 ? 1 : (total / _pageSize).ceil();
@@ -236,12 +234,12 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
               const SizedBox(width: 8),
               Expanded(
                 child: _filterField(
-                  label: 'Structure Type',
-                  title: 'Select Structure Type',
+                  label: 'Data Type',
+                  title: 'Select Data Type',
                   async: typesAsync,
-                  value: _structureType,
+                  value: _uploadType,
                   onChanged: (String? id) => setState(() {
-                    _structureType = id;
+                    _uploadType = id;
                     _currentPage = 0;
                   }),
                   scheme: scheme,
@@ -255,12 +253,12 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
             children: <Widget>[
               Expanded(
                 child: _filterField(
-                  label: 'Work Status',
-                  title: 'Select Work Status',
+                  label: 'Status',
+                  title: 'Select Status',
                   async: statusAsync,
-                  value: _workStatus,
+                  value: _statusFk,
                   onChanged: (String? id) => setState(() {
-                    _workStatus = id;
+                    _statusFk = id;
                     _currentPage = 0;
                   }),
                   scheme: scheme,
@@ -314,7 +312,7 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
   }
 
   Widget _tableCard({
-    required StructureFormListResult page,
+    required P6DataHistoryListResult page,
     required AppPalette palette,
     required ColorScheme scheme,
   }) {
@@ -325,35 +323,45 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
         border: Border.all(color: palette.borderSubtle),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            color: scheme.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: const Row(
-              children: <Widget>[
-                _HeaderCell('Project', flex: 2),
-                _HeaderCell('Structure Type', flex: 3),
-                _HeaderCell('Structure', flex: 3),
-                _HeaderCell('Contract', flex: 4),
-                _HeaderCell('Work Status', flex: 3),
-                _HeaderCell('Action', flex: 2),
-              ],
-            ),
-          ),
-          if (page.items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Text(
-                'No structures found.',
-                style: TextStyle(color: palette.mutedText),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: 860,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                color: scheme.primary,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: const Row(
+                  children: <Widget>[
+                    _HeaderCell('Contract ID', flex: 2),
+                    _HeaderCell('Data Type', flex: 2),
+                    _HeaderCell('Data Date', flex: 2),
+                    _HeaderCell('Status', flex: 2),
+                    _HeaderCell('Uploaded File', flex: 3),
+                    _HeaderCell('Uploaded By', flex: 2),
+                    _HeaderCell('Uploaded Date', flex: 2),
+                  ],
+                ),
               ),
-            )
-          else
-            for (int index = 0; index < page.items.length; index++)
-              _row(page.items[index], index, palette, scheme),
-        ],
+              if (page.items.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Center(
+                    child: Text(
+                      'No P6 data found.',
+                      style: TextStyle(color: palette.mutedText),
+                    ),
+                  ),
+                )
+              else
+                for (int index = 0; index < page.items.length; index++)
+                  _row(page.items[index], index, palette, scheme),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -398,7 +406,7 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
   }
 
   Widget _row(
-    StructureFormListItem item,
+    P6DataHistoryItem item,
     int index,
     AppPalette palette,
     ColorScheme scheme,
@@ -412,42 +420,13 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _cell(item.projectId ?? '-', flex: 2, bold: true, scheme: scheme),
-          _cell(item.structureType ?? '-', flex: 3, scheme: scheme),
-          _cell(item.structureDisplay, flex: 3, scheme: scheme),
-          _cell(item.contractDisplay, flex: 4, scheme: scheme),
-          _cell(item.workStatus ?? '-', flex: 3, scheme: scheme),
-          Expanded(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: scheme.primary,
-                shape: const CircleBorder(),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () async {
-                    if (item.structureId.isEmpty) return;
-                    final Object? changed = await context.push(
-                      UpdateStructureFormPage.routePath,
-                      extra: item.structureId,
-                    );
-                    if (changed == true && mounted) {
-                      ref.invalidate(structureFormListProvider(_query));
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.edit_rounded,
-                      size: 16,
-                      color: scheme.onPrimary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          _cell(item.contractId ?? '-', flex: 2, bold: true, scheme: scheme),
+          _cell(item.dataType ?? '-', flex: 2, scheme: scheme),
+          _cell(item.dataDate ?? '-', flex: 2, scheme: scheme),
+          _cell(item.status ?? '-', flex: 2, scheme: scheme),
+          _cell(item.uploadedFileDisplay, flex: 3, scheme: scheme),
+          _cell(item.uploadedBy ?? '-', flex: 2, scheme: scheme),
+          _cell(item.uploadedDate ?? '-', flex: 2, scheme: scheme),
         ],
       ),
     );
@@ -465,7 +444,7 @@ class _UpdateStructurePageState extends ConsumerState<UpdateStructurePage> {
         padding: const EdgeInsets.only(right: 4),
         child: Text(
           text,
-          maxLines: 3,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,

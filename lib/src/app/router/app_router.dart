@@ -7,6 +7,9 @@ import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.da
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
@@ -14,6 +17,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/proj
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/structure_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/technical_assistance_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_page.dart';
 import 'package:wr_pmis_mobile/src/features/profile/presentation/pages/profile_page.dart';
 import 'package:wr_pmis_mobile/src/features/settings/presentation/pages/settings_page.dart';
@@ -116,10 +120,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             const UpdateStructurePage(),
       ),
       GoRoute(
+        path: UpdateStructureFormPage.routePath,
+        name: UpdateStructureFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final String structureId =
+              state.extra is String ? state.extra! as String : '';
+          return UpdateStructureFormPage(structureId: structureId);
+        },
+      ),
+      GoRoute(
         path: TechnicalAssistancePage.routePath,
         name: TechnicalAssistancePage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const TechnicalAssistancePage(),
+      ),
+      GoRoute(
+        path: StructureP6UpdatesPage.routePath,
+        name: StructureP6UpdatesPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const StructureP6UpdatesPage(),
+      ),
+      GoRoute(
+        path: NewActivitiesUpdatePage.routePath,
+        name: NewActivitiesUpdatePage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const NewActivitiesUpdatePage(),
+      ),
+      GoRoute(
+        path: ModifyActualsPage.routePath,
+        name: ModifyActualsPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ModifyActualsPage(),
       ),
       GoRoute(
         path: ProfilePage.routePath,
