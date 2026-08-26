@@ -170,7 +170,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               color: const Color(0xFF3A2414),
                             ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        AppConstants.publisherLine,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF6B5344),
+                            ),
+                      ),
                       const SizedBox(height: 8),
+
                       // 2. Sliding images
                       const _CarouselSection(
                         assets: _carouselAssets,

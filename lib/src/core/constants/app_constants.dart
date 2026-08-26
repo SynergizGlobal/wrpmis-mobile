@@ -1,7 +1,13 @@
 class AppConstants {
   const AppConstants._();
 
-  static const String appName = 'WR PMIS';
-  static const String orgName = 'Western Railways';
-  static const String welcomeTitle = 'Welcome to Western Railways PMIS';
+  /// On-device / store product name (Synergiz product, not a govt org app).
+  static const String appName = 'WR-PMIS';
+
+  /// App bar / login brand line — product name, not "Western Railways".
+  static const String orgName = 'WR-PMIS';
+
+  static const String welcomeTitle = 'Welcome to WR-PMIS';
+
+  static const String publisherLine = 'by Synergiz';
 }

@@ -1,7 +1,7 @@
 name: wr_pmis_mobile
-description: "Western Railways Project Management Information System."
+description: "WR-PMIS by Synergiz — railway project management support app."
 publish_to: 'none'
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: ^3.11.4
