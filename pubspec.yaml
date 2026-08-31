@@ -1,7 +1,7 @@
 name: wr_pmis_mobile
 description: "WR-PMIS by Synergiz — railway project management support app."
 publish_to: 'none'
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ^3.11.4
@@ -40,6 +40,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/internal/
     - assets/update_forms_icons/
     - assets/dashboard_slides/
 

@@ -36,7 +36,7 @@ Switch QA/Prod in `lib/main.dart` via `Environment.init(Env.qa | Env.prod)`.
 
 ## Current screens
 
-1. **Login** — WR branding (ochre panel, IR logo)
+1. **Login** — WR-PMIS by Synergiz product branding (no client org logo on screen)
 2. **Home** — project summary + category cards
 3. **Update Forms** — API-driven list with submenu sheet
 4. **Profile** — session details, settings, logout

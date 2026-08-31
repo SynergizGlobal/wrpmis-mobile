@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/constants/app_constants.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
+import 'package:wr_pmis_mobile/src/core/widgets/product_brand_icon.dart';
 import 'package:wr_pmis_mobile/src/core/result/failure.dart';
 import 'package:wr_pmis_mobile/src/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
@@ -24,7 +25,6 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  static const String _wrLogoAsset = 'assets/app_icon.png';
   static const List<String> _carouselAssets = <String>[
     'assets/dashboard_slides/carousel1.webp',
     'assets/dashboard_slides/carousel2.webp',
@@ -152,16 +152,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   child: Column(
                     children: <Widget>[
-                      // 1. Logo on top
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: Image.asset(
-                          _wrLogoAsset,
-                          width: 88,
-                          height: 88,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      // 1. Product mark (Synergiz — not client org logo)
+                      const ProductBrandIcon(size: 88, borderRadius: 18),
                       const SizedBox(height: 10),
                       Text(
                         AppConstants.orgName,

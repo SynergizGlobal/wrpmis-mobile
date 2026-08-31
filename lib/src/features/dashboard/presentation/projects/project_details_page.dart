@@ -21,16 +21,23 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppPalette palette = AppPalette.of(context);
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     final AsyncValue<ProjectDetailsData> detailsAsync = ref.watch(
       projectDetailsProvider(widget.projectTypeName),
     );
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Project Details')),
       body: SafeArea(
         child: detailsAsync.when(
-          data: (ProjectDetailsData data) => _content(context, data),
+          data: (ProjectDetailsData data) => _content(
+            context,
+            data,
+            palette,
+            scheme,
+          ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (Object error, StackTrace _) => Center(
             child: Padding(
@@ -38,7 +45,11 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(error.toString(), textAlign: TextAlign.center),
+                  Text(
+                    error.toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: scheme.onSurface),
+                  ),
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () => ref.invalidate(
@@ -55,7 +66,12 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
     );
   }
 
-  Widget _content(BuildContext context, ProjectDetailsData data) {
+  Widget _content(
+    BuildContext context,
+    ProjectDetailsData data,
+    AppPalette palette,
+    ColorScheme scheme,
+  ) {
     final bool hasProjects = data.projectNames.isNotEmpty;
     if (!hasProjects) {
       _selectedProject = null;
@@ -83,12 +99,18 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
             'Overall Status of Major Items in ${widget.projectTypeName} Projects',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: scheme.onSurface,
                 ),
           ),
           const SizedBox(height: 12),
           Expanded(
             child: !hasProjects
-                ? const Center(child: Text('No projects available.'))
+                ? Center(
+                    child: Text(
+                      'No projects available.',
+                      style: TextStyle(color: palette.mutedText),
+                    ),
+                  )
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
@@ -97,6 +119,8 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
                         child: _ProjectSidebar(
                           names: data.projectNames,
                           selected: _selectedProject,
+                          palette: palette,
+                          scheme: scheme,
                           onSelect: (String name) {
                             setState(() => _selectedProject = name);
                           },
@@ -104,7 +128,11 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _MajorItemsTable(items: visibleItems),
+                        child: _MajorItemsTable(
+                          items: visibleItems,
+                          palette: palette,
+                          scheme: scheme,
+                        ),
                       ),
                     ],
                   ),
@@ -119,11 +147,15 @@ class _ProjectSidebar extends StatelessWidget {
   const _ProjectSidebar({
     required this.names,
     required this.selected,
+    required this.palette,
+    required this.scheme,
     required this.onSelect,
   });
 
   final List<String> names;
   final String? selected;
+  final AppPalette palette;
+  final ColorScheme scheme;
   final ValueChanged<String> onSelect;
 
   @override
@@ -135,7 +167,9 @@ class _ProjectSidebar extends StatelessWidget {
         final String name = names[index];
         final bool isSelected = name == selected;
         return Material(
-          color: Colors.white,
+          color: isSelected
+              ? scheme.primary.withValues(alpha: 0.12)
+              : palette.cardSurface,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             onTap: () => onSelect(name),
@@ -145,9 +179,7 @@ class _ProjectSidebar extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected
-                      ? AppTheme.brandPrimary
-                      : Colors.black.withValues(alpha: 0.06),
+                  color: isSelected ? scheme.primary : palette.borderSubtle,
                   width: isSelected ? 1.6 : 1,
                 ),
               ),
@@ -156,9 +188,7 @@ class _ProjectSidebar extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight:
                           isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected
-                          ? AppTheme.brandPrimary
-                          : Theme.of(context).colorScheme.onSurface,
+                      color: isSelected ? scheme.primary : scheme.onSurface,
                     ),
               ),
             ),
@@ -170,31 +200,38 @@ class _ProjectSidebar extends StatelessWidget {
 }
 
 class _MajorItemsTable extends StatelessWidget {
-  const _MajorItemsTable({required this.items});
+  const _MajorItemsTable({
+    required this.items,
+    required this.palette,
+    required this.scheme,
+  });
 
   final List<ProjectMajorItem> items;
+  final AppPalette palette;
+  final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.cardSurface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+        border: Border.all(color: palette.borderSubtle),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: Column(
           children: <Widget>[
-            const _TableHeader(),
+            _TableHeader(scheme: scheme),
             Expanded(
               child: items.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Text(
                           'Major item progress is not in the project list API yet.',
                           textAlign: TextAlign.center,
+                          style: TextStyle(color: palette.mutedText),
                         ),
                       ),
                     )
@@ -202,10 +239,15 @@ class _MajorItemsTable extends StatelessWidget {
                       itemCount: items.length,
                       separatorBuilder: (_, _) => Divider(
                         height: 1,
-                        color: Colors.black.withValues(alpha: 0.08),
+                        color: palette.borderSubtle,
                       ),
                       itemBuilder: (BuildContext context, int index) {
-                        return _TableRow(item: items[index]);
+                        return _TableRow(
+                          item: items[index],
+                          index: index,
+                          palette: palette,
+                          scheme: scheme,
+                        );
                       },
                     ),
             ),
@@ -217,20 +259,22 @@ class _MajorItemsTable extends StatelessWidget {
 }
 
 class _TableHeader extends StatelessWidget {
-  const _TableHeader();
+  const _TableHeader({required this.scheme});
+
+  final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppTheme.brandPrimary,
+      color: scheme.primary,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: const Row(
+      child: Row(
         children: <Widget>[
-          _HeaderCell('Item', flex: 3),
-          _HeaderCell('Scope', flex: 2),
-          _HeaderCell('Completed', flex: 2),
-          _HeaderCell('Progress', flex: 2),
-          _HeaderCell('TDC', flex: 2),
+          _HeaderCell('Item', flex: 3, scheme: scheme),
+          _HeaderCell('Scope', flex: 2, scheme: scheme),
+          _HeaderCell('Completed', flex: 2, scheme: scheme),
+          _HeaderCell('Progress', flex: 2, scheme: scheme),
+          _HeaderCell('TDC', flex: 2, scheme: scheme),
         ],
       ),
     );
@@ -238,10 +282,11 @@ class _TableHeader extends StatelessWidget {
 }
 
 class _HeaderCell extends StatelessWidget {
-  const _HeaderCell(this.label, {required this.flex});
+  const _HeaderCell(this.label, {required this.flex, required this.scheme});
 
   final String label;
   final int flex;
+  final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +295,7 @@ class _HeaderCell extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: Colors.white,
+              color: scheme.onPrimary,
               fontWeight: FontWeight.w700,
             ),
       ),
@@ -259,26 +304,49 @@ class _HeaderCell extends StatelessWidget {
 }
 
 class _TableRow extends StatelessWidget {
-  const _TableRow({required this.item});
+  const _TableRow({
+    required this.item,
+    required this.index,
+    required this.palette,
+    required this.scheme,
+  });
 
   final ProjectMajorItem item;
+  final int index;
+  final AppPalette palette;
+  final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
+    final Color rowColor =
+        index.isEven ? palette.tableRowEven : palette.tableRowOdd;
     final TextStyle style = Theme.of(context).textTheme.bodySmall!.copyWith(
           fontWeight: FontWeight.w500,
+          color: scheme.onSurface,
         );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _BodyCell(item.item, flex: 3, style: style),
-          _BodyCell('${item.scope} ${item.unit}'.trim(), flex: 2, style: style),
-          _BodyCell('${item.completed} ${item.unit}'.trim(), flex: 2, style: style),
-          _BodyCell(item.progressPercent, flex: 2, style: style),
-          _BodyCell(item.tdc, flex: 2, style: style),
-        ],
+
+    return ColoredBox(
+      color: rowColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _BodyCell(item.item, flex: 3, style: style),
+            _BodyCell(
+              '${item.scope} ${item.unit}'.trim(),
+              flex: 2,
+              style: style,
+            ),
+            _BodyCell(
+              '${item.completed} ${item.unit}'.trim(),
+              flex: 2,
+              style: style,
+            ),
+            _BodyCell(item.progressPercent, flex: 2, style: style),
+            _BodyCell(item.tdc, flex: 2, style: style),
+          ],
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/constants/app_constants.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_action_card.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
+import 'package:wr_pmis_mobile/src/core/widgets/product_brand_icon.dart';
 import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/app_module_item.dart';
@@ -75,28 +76,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         titleSpacing: 20,
         title: Row(
           children: <Widget>[
-            Container(
-              width: 50,
-              height: 50,
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/indian_railways_logo.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            const ProductBrandIcon(size: 44, circular: true),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
