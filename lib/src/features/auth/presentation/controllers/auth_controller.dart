@@ -63,7 +63,7 @@ class AuthController extends StateNotifier<AsyncValue<AuthSession?>> {
     required bool rememberMe,
   }) async {
     state = const AsyncLoading<AuthSession?>();
-    // Ensure JSESSIONID cookie jar is attached before form login.
+    // Ensure JSESSIONID cookie jar is attached before API login.
     await _ref.read(sessionCookieManagerProvider.future);
     final Result<AuthSession> result = await _loginUseCase(
       userId: userId,

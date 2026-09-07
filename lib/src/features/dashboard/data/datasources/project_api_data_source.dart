@@ -38,6 +38,44 @@ class ProjectApiDataSource {
     return _asMap(response.data);
   }
 
+  /// GET /api/v1/projects/export — JSON `{ projects, projectPinkBook }`.
+  Future<Map<String, dynamic>> fetchProjectsExport() async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.projectsExportPath,
+      options: Options(
+        responseType: ResponseType.json,
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+    final int status = response.statusCode ?? 0;
+    if (status == 401 || status == 403) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Session expired. Please sign in again.',
+      );
+    }
+    if (status == 404) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'No project data available to export.',
+      );
+    }
+    if (status != 200) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Unable to export projects (HTTP $status).',
+      );
+    }
+    return _asMap(response.data);
+  }
+
   /// POST /api/v1/projects
   Future<String> addProject(Map<String, dynamic> payload) async {
     final response = await _dio.post<dynamic>(
@@ -503,6 +541,90 @@ class ProjectApiDataSource {
       totalRecords: total,
       filteredRecords: filteredCount,
     );
+  }
+
+  /// POST `/api/v1/p6/upload-baseline` | `revised-activities` | `update-activities`
+  /// multipart: project_id_fk, contract_id_fk, data_date (dd-mm-yyyy), p6dataFile.
+  Future<String> uploadP6Data({
+    required String apiPath,
+    required String projectId,
+    required String contractId,
+    required String dataDate,
+    required String filePath,
+    required String fileName,
+  }) async {
+    final FormData formData = FormData.fromMap(<String, dynamic>{
+      'project_id_fk': projectId,
+      'contract_id_fk': contractId,
+      'data_date': dataDate,
+      'p6dataFile': await MultipartFile.fromFile(
+        filePath,
+        filename: fileName,
+      ),
+    });
+
+    final Response<dynamic> response = await _dio.post<dynamic>(
+      apiPath,
+      data: formData,
+      options: Options(
+        contentType: Headers.multipartFormDataContentType,
+        responseType: ResponseType.json,
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+
+    final int status = response.statusCode ?? 0;
+    final Map<String, dynamic> map = _asMap(response.data);
+    final String message = _stripHtml(
+      (map['message'] ?? map['error'] ?? map['status'] ?? '').toString(),
+    );
+
+    if (status == 401 || status == 403) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Session expired. Please sign in again.',
+      );
+    }
+    if (status < 200 || status >= 300) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: message.isNotEmpty
+            ? message
+            : 'Unable to upload P6 data (HTTP $status).',
+      );
+    }
+
+    final String statusFlag = (map['status'] ?? '').toString().toLowerCase();
+    final String errorText = _stripHtml((map['error'] ?? '').toString());
+    if (errorText.isNotEmpty && statusFlag != 'success') {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: errorText,
+      );
+    }
+
+    if (message.isNotEmpty) {
+      return message;
+    }
+    return 'P6 data uploaded successfully.';
+  }
+
+  String _stripHtml(String raw) {
+    return raw
+        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .trim();
   }
 
   List<Map<String, dynamic>> _extractP6HistoryRows(dynamic decoded) {

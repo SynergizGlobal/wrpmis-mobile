@@ -5,6 +5,7 @@ import 'package:wr_pmis_mobile/src/core/widgets/app_select_sheet_field.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_table_pagination_footer.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/p6_data_history_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/p6_new_data_sheet.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/providers/p6_data_history_providers.dart';
 
 /// Update Forms → Execution & Monitoring → Structure P6 Updates (web "P6 DATA HISTORY").
@@ -62,6 +63,45 @@ class _StructureP6UpdatesPageState extends ConsumerState<StructureP6UpdatesPage>
     });
   }
 
+  Future<void> _openP6NewData() async {
+    final bool? uploaded = await showP6NewDataSheet(context);
+    if (uploaded == true && mounted) {
+      ref.invalidate(p6DataHistoryListProvider(_query));
+      ref.invalidate(p6ContractFilterProvider);
+      ref.invalidate(p6UploadTypeFilterProvider);
+      ref.invalidate(p6StatusFilterProvider);
+    }
+  }
+
+  Widget _p6NewDataActionBar(ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              'P6 New Data',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+          FilledButton.icon(
+            onPressed: _openP6NewData,
+            icon: const Icon(Icons.upload_rounded, size: 18),
+            label: const Text('Update'),
+            style: FilledButton.styleFrom(
+              backgroundColor: scheme.primary,
+              foregroundColor: scheme.onPrimary,
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppPalette palette = AppPalette.of(context);
@@ -87,6 +127,7 @@ class _StructureP6UpdatesPageState extends ConsumerState<StructureP6UpdatesPage>
               child: listAsync.when(
                 loading: () => Column(
                   children: <Widget>[
+                    _p6NewDataActionBar(scheme),
                     _filtersBlock(
                       contractsAsync,
                       typesAsync,
@@ -100,6 +141,7 @@ class _StructureP6UpdatesPageState extends ConsumerState<StructureP6UpdatesPage>
                 ),
                 error: (Object error, StackTrace _) => Column(
                   children: <Widget>[
+                    _p6NewDataActionBar(scheme),
                     _filtersBlock(
                       contractsAsync,
                       typesAsync,
@@ -150,6 +192,9 @@ class _StructureP6UpdatesPageState extends ConsumerState<StructureP6UpdatesPage>
                       Expanded(
                         child: CustomScrollView(
                           slivers: <Widget>[
+                            SliverToBoxAdapter(
+                              child: _p6NewDataActionBar(scheme),
+                            ),
                             SliverToBoxAdapter(
                               child: _filtersBlock(
                                 contractsAsync,

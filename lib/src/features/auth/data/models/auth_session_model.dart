@@ -13,16 +13,32 @@ class AuthSessionModel extends AuthSession {
   });
 
   factory AuthSessionModel.fromJson(Map<String, dynamic> json) {
+    String read(List<String> keys, {String fallback = ''}) {
+      for (final String key in keys) {
+        final dynamic value = json[key];
+        if (value == null) {
+          continue;
+        }
+        final String text = value.toString().trim();
+        if (text.isNotEmpty && text.toLowerCase() != 'null') {
+          return text;
+        }
+      }
+      return fallback;
+    }
+
     return AuthSessionModel(
-      token: (json['token'] ?? json['accessToken'] ?? json['jwt'] ?? '')
-          .toString(),
-      userId: (json['userId'] ?? '').toString(),
-      userName: (json['userName'] ?? json['userId'] ?? 'User').toString(),
-      emailId: (json['emailId'] ?? '').toString(),
-      userRoleNameFk: (json['userRoleNameFk'] ?? '').toString(),
-      userTypeFk: (json['userTypeFk'] ?? '').toString(),
-      departmentFk: (json['departmentFk'] ?? '').toString(),
-      designation: (json['designation'] ?? '').toString(),
+      token: read(<String>['token', 'accessToken', 'jwt']),
+      userId: read(<String>['user_id', 'userId']),
+      userName: read(
+        <String>['user_name', 'userName'],
+        fallback: read(<String>['user_id', 'userId'], fallback: 'User'),
+      ),
+      emailId: read(<String>['email_id', 'emailId', 'email']),
+      userRoleNameFk: read(<String>['user_role_name_fk', 'userRoleNameFk']),
+      userTypeFk: read(<String>['user_type_fk', 'userTypeFk']),
+      departmentFk: read(<String>['department_fk', 'departmentFk', 'department']),
+      designation: read(<String>['designation']),
     );
   }
 

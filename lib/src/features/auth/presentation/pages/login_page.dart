@@ -37,6 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _obscure = true;
   bool _rememberMe = true;
   bool _submitting = false;
+  bool _autoLoggingIn = false;
 
   @override
   void initState() {
@@ -54,20 +55,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _userIdController.text = snap.userId!;
     }
     setState(() => _rememberMe = snap.rememberMe);
+
+    final bool shouldAutoLogin =
+        snap.rememberMe &&
+        (snap.userId?.trim().isNotEmpty ?? false) &&
+        (snap.password?.isNotEmpty ?? false);
+    if (!shouldAutoLogin) {
+      return;
+    }
+
+    setState(() => _autoLoggingIn = true);
     final Failure? failure =
         await ref.read(authControllerProvider.notifier).tryAutoLoginIfRemembered();
     if (!mounted) {
       return;
     }
+    setState(() => _autoLoggingIn = false);
     if (failure == null &&
         ref.read(authControllerProvider).valueOrNull != null) {
       context.goNamed(DashboardPage.routeName);
       return;
     }
-    if (failure != null) {
-      // Auto-login failed — stay on login without showing a dialog.
-      return;
-    }
+    // Auto-login failed — stay on login without showing a dialog.
   }
 
   Future<void> _submit() async {
@@ -119,7 +128,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
       child: Scaffold(
         backgroundColor: AppTheme.scaffoldLight,
-        body: Column(
+        body: Stack(
+          children: <Widget>[
+            Column(
           children: <Widget>[
             Container(
               width: double.infinity,
@@ -230,6 +241,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 controller: _userIdController,
                                 prefixIcon: Icons.person_outline_rounded,
                                 textInputAction: TextInputAction.next,
+                                enabled: !_autoLoggingIn && !_submitting,
                                 autofillHints: const <String>[
                                   AutofillHints.username,
                                 ],
@@ -248,13 +260,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 prefixIcon: Icons.lock_outline_rounded,
                                 obscureText: _obscure,
                                 textInputAction: TextInputAction.done,
+                                enabled: !_autoLoggingIn && !_submitting,
                                 autofillHints: const <String>[
                                   AutofillHints.password,
                                 ],
                                 onFieldSubmitted: (_) => _submit(),
                                 suffix: IconButton(
-                                  onPressed: () =>
-                                      setState(() => _obscure = !_obscure),
+                                  onPressed: (_autoLoggingIn || _submitting)
+                                      ? null
+                                      : () => setState(
+                                            () => _obscure = !_obscure,
+                                          ),
                                   icon: Icon(
                                     _obscure
                                         ? Icons.visibility_outlined
@@ -272,16 +288,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               const SizedBox(height: 10),
                               _RememberMeCheckbox(
                                 value: _rememberMe,
-                                onChanged: (bool value) {
-                                  setState(() => _rememberMe = value);
-                                },
+                                onChanged: (_autoLoggingIn || _submitting)
+                                    ? null
+                                    : (bool value) {
+                                        setState(() => _rememberMe = value);
+                                      },
                               ),
                               const SizedBox(height: 18),
                               SizedBox(
                                 width: double.infinity,
                                 height: 50,
                                 child: FilledButton(
-                                  onPressed: _submitting ? null : _submit,
+                                  onPressed: (_submitting || _autoLoggingIn)
+                                      ? null
+                                      : _submit,
                                   style: FilledButton.styleFrom(
                                     backgroundColor: Colors.white,
                                     foregroundColor: primary,
@@ -313,11 +333,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               Align(
                                 alignment: Alignment.center,
                                 child: TextButton(
-                                  onPressed: () {
-                                    context.pushNamed(
-                                      ForgotPasswordPage.routeName,
-                                    );
-                                  },
+                                  onPressed: (_autoLoggingIn || _submitting)
+                                      ? null
+                                      : () {
+                                          context.pushNamed(
+                                            ForgotPasswordPage.routeName,
+                                          );
+                                        },
                                   style: TextButton.styleFrom(
                                     foregroundColor:
                                         onPrimary.withValues(alpha: 0.92),
@@ -341,6 +363,60 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           ],
+            ),
+            if (_autoLoggingIn)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: Color(0x33000000),
+                            blurRadius: 18,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          ),
+                          SizedBox(height: 14),
+                          Text(
+                            'Signing you in…',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF3A2414),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Restoring your saved session',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF6B5344),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -354,14 +430,14 @@ class _RememberMeCheckbox extends StatelessWidget {
   });
 
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     const Color primary = AppTheme.brandPrimary;
 
     return InkWell(
-      onTap: () => onChanged(!value),
+      onTap: onChanged == null ? null : () => onChanged!(!value),
       borderRadius: BorderRadius.circular(10),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -402,7 +478,9 @@ class _RememberMeCheckbox extends StatelessWidget {
             Text(
               'Remember me',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: Colors.white.withValues(
+                  alpha: onChanged == null ? 0.55 : 0.95,
+                ),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -590,6 +668,7 @@ class _LoginField extends StatefulWidget {
     required this.controller,
     required this.prefixIcon,
     this.obscureText = false,
+    this.enabled = true,
     this.textInputAction,
     this.onFieldSubmitted,
     this.suffix,
@@ -602,6 +681,7 @@ class _LoginField extends StatefulWidget {
   final TextEditingController controller;
   final IconData prefixIcon;
   final bool obscureText;
+  final bool enabled;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
   final Widget? suffix;
@@ -671,6 +751,7 @@ class _LoginFieldState extends State<_LoginField> {
           child: TextFormField(
             controller: widget.controller,
             focusNode: _focusNode,
+            enabled: widget.enabled,
             obscureText: widget.obscureText,
             textInputAction: widget.textInputAction,
             onFieldSubmitted: widget.onFieldSubmitted,

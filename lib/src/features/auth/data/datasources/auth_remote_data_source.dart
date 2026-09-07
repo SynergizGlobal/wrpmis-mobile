@@ -9,25 +9,24 @@ class AuthRemoteDataSource {
 
   final Dio _dio;
 
-  /// Web form login: POST `/login` as `application/x-www-form-urlencoded`.
-  /// Success → HTTP 302 to `/home` (+ `JSESSIONID` cookie).
-  /// Failure → HTTP 200 back on `/login`.
+  /// API-007: POST `/api/v1/login` as JSON.
+  /// Success → HTTP 200 + User entity + `JSESSIONID` cookie.
+  /// Failure → HTTP 401/400 with `{"error":"..."}`.
   Future<AuthSessionModel> login({
     required String userId,
     required String password,
   }) async {
     final Response<dynamic> response = await _dio.post<dynamic>(
-      ApiConstants.loginPath,
+      ApiConstants.apiLoginPath,
       data: <String, dynamic>{
         'user_id': userId,
         'password': password,
       },
       options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        responseType: ResponseType.plain,
-        followRedirects: false,
+        contentType: Headers.jsonContentType,
+        responseType: ResponseType.json,
         validateStatus: (int? status) =>
-            status != null && status >= 200 && status < 400,
+            status != null && status >= 200 && status < 500,
         extra: const <String, dynamic>{
           'skipAuth': true,
           'allowSetCookie': true,
@@ -36,29 +35,54 @@ class AuthRemoteDataSource {
     );
 
     final int status = response.statusCode ?? 0;
-    final String location =
-        (response.headers.value('location') ?? '').toLowerCase();
-    final bool redirectedHome =
-        status == 302 && location.contains('/home');
+    final Map<String, dynamic> body = _asMap(response.data);
+    final String errorMessage = (body['error'] ?? '').toString().trim();
 
-    if (!redirectedHome) {
+    if (status == 401 || status == 400 || status == 403) {
       throw DioException(
         requestOptions: response.requestOptions,
         response: response,
         type: DioExceptionType.badResponse,
-        message: 'Invalid user name or password.',
+        message: errorMessage.isNotEmpty
+            ? errorMessage
+            : 'Invalid user name or password.',
+      );
+    }
+
+    if (status != 200) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: errorMessage.isNotEmpty
+            ? errorMessage
+            : 'Login failed (HTTP $status).',
+      );
+    }
+
+    if (errorMessage.isNotEmpty && body['user_id'] == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: errorMessage,
       );
     }
 
     final String? sessionId = _sessionIdFrom(
-      locationHeader: response.headers.value('location'),
       setCookie: response.headers['set-cookie'],
     );
 
+    final AuthSessionModel parsed = AuthSessionModel.fromJson(body);
     return AuthSessionModel(
-      token: sessionId ?? '',
-      userId: userId,
-      userName: userId,
+      token: sessionId ?? parsed.token,
+      userId: parsed.userId.isNotEmpty ? parsed.userId : userId,
+      userName: parsed.userName.isNotEmpty ? parsed.userName : userId,
+      emailId: parsed.emailId,
+      userRoleNameFk: parsed.userRoleNameFk,
+      userTypeFk: parsed.userTypeFk,
+      departmentFk: parsed.departmentFk,
+      designation: parsed.designation,
     );
   }
 
@@ -112,33 +136,33 @@ class AuthRemoteDataSource {
     );
   }
 
-  String? _sessionIdFrom({
-    required String? locationHeader,
-    required List<String>? setCookie,
-  }) {
-    final String location = locationHeader ?? '';
-    final RegExp jsessionInUrl = RegExp(
-      r'jsessionid=([^;/?#]+)',
+  String? _sessionIdFrom({required List<String>? setCookie}) {
+    if (setCookie == null) {
+      return null;
+    }
+    final RegExp cookieRe = RegExp(
+      r'JSESSIONID=([^;]+)',
       caseSensitive: false,
     );
-    final Match? urlMatch = jsessionInUrl.firstMatch(location);
-    if (urlMatch != null) {
-      return urlMatch.group(1);
-    }
-
-    if (setCookie != null) {
-      final RegExp cookieRe = RegExp(
-        r'JSESSIONID=([^;]+)',
-        caseSensitive: false,
-      );
-      for (final String header in setCookie) {
-        final Match? match = cookieRe.firstMatch(header);
-        if (match != null) {
-          return match.group(1);
-        }
+    for (final String header in setCookie) {
+      final Match? match = cookieRe.firstMatch(header);
+      if (match != null) {
+        return match.group(1);
       }
     }
     return null;
+  }
+
+  Map<String, dynamic> _asMap(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is Map) {
+      return data.map(
+        (dynamic key, dynamic value) => MapEntry(key.toString(), value),
+      );
+    }
+    return <String, dynamic>{};
   }
 }
 

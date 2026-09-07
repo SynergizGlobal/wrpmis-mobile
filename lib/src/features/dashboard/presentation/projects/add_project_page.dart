@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
+import 'package:wr_pmis_mobile/src/core/result/failure.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_table_pagination_footer.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/data/repositories/project_repository.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_list_item.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/domain/services/projects_export_service.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/providers/project_list_provider.dart';
 
@@ -40,6 +43,7 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   String _searchQuery = '';
   int _pageSize = 10;
   int _currentPage = 0;
+  bool _exporting = false;
 
   static final ButtonStyle _rowButtonStyle = FilledButton.styleFrom(
     minimumSize: const Size(0, 44),
@@ -55,6 +59,25 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportProjects() async {
+    if (_exporting) {
+      return;
+    }
+    setState(() => _exporting = true);
+    final ProjectsExportService service = ProjectsExportService(
+      ref.read(projectRepositoryProvider),
+    );
+    final result = await service.exportAndSaveExcel();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _exporting = false);
+    await result.fold(
+      (Failure failure) => GlobalDialog.error(failure.message, title: 'Export'),
+      (String message) => GlobalDialog.success(message, title: 'Export'),
+    );
   }
 
   @override
@@ -152,14 +175,17 @@ class _AddProjectPageState extends ConsumerState<AddProjectPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: _outlinedRowButtonStyle,
-                  onPressed: filtered.isEmpty
+                  onPressed: filtered.isEmpty || _exporting
                       ? null
-                      : () => GlobalDialog.info(
-                            'Export will be connected next.',
-                            title: 'Export',
-                          ),
-                  icon: const Icon(Icons.download_rounded),
-                  label: const Text('Export'),
+                      : _exportProjects,
+                  icon: _exporting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download_rounded),
+                  label: Text(_exporting ? 'Exporting…' : 'Export'),
                 ),
               ),
               const SizedBox(width: 8),

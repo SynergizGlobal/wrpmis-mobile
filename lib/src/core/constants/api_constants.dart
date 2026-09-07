@@ -3,6 +3,8 @@ class ApiConstants {
 
   // ── Auth ──────────────────────────────────────────────────────────────
   static const String loginPath = '/login';
+  /// API-007 JSON login (preferred for mobile).
+  static const String apiLoginPath = '/api/v1/login';
   static const String logoutPath = '/logout';
   static const String homePath = '/home';
   static const String forgotSendOtpPath = '/api/forgot/send-otp';
@@ -13,6 +15,7 @@ class ApiConstants {
   static const String projectsListPath = '/api/v1/projects/list';
   static const String projectsFormDataPath = '/api/v1/projects/add-form-data';
   static const String projectsPath = '/api/v1/projects';
+  static const String projectsExportPath = '/api/v1/projects/export';
   // GET /api/v1/projects/{project_id} — single project by ID
 
   // ── Structures (Works) ────────────────────────────────────────────────
@@ -50,6 +53,16 @@ class ApiConstants {
       '/ajax/getUploadTypesFilterInP6New';
   static const String p6StatusFilterPath = '/ajax/getStatusListFilterInP6New';
   static const String p6NewActivityDataPath = '/ajax/getP6NewActivityData';
+
+  /// P6 New Data uploads (multipart).
+  static const String p6UploadBaselinePath = '/api/v1/p6/upload-baseline';
+  static const String p6RevisedActivitiesPath = '/api/v1/p6/revised-activities';
+  static const String p6UpdateActivitiesPath = '/api/v1/p6/update-activities';
+
+  /// Static template files (same as web "Click here for the file format").
+  static const String p6BaselineTemplateFile = 'P6BaselineFile.xlsx';
+  static const String p6RevisedTemplateFile = 'P6RevisedFile.xlsx';
+  static const String p6UpdateTemplateFile = 'P6UpdateFile.xlsx';
 
   /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';

@@ -61,6 +61,17 @@ class ProjectRepository {
     }
   }
 
+  Future<Result<Map<String, dynamic>>> exportProjects() async {
+    try {
+      final Map<String, dynamic> json = await _api.fetchProjectsExport();
+      return Right(json);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to export projects'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
   Future<Result<StructureFormData>> getStructureFormData() async {
     try {
       final json = await _api.fetchStructureFormData();
@@ -426,6 +437,31 @@ class ProjectRepository {
       return Right(page);
     } on DioException catch (e) {
       return Left(Failure(e.message ?? 'Failed to load P6 data history'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<String>> uploadP6Data({
+    required String apiPath,
+    required String projectId,
+    required String contractId,
+    required String dataDate,
+    required String filePath,
+    required String fileName,
+  }) async {
+    try {
+      final String msg = await _api.uploadP6Data(
+        apiPath: apiPath,
+        projectId: projectId,
+        contractId: contractId,
+        dataDate: dataDate,
+        filePath: filePath,
+        fileName: fileName,
+      );
+      return Right(msg);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to upload P6 data'));
     } catch (e) {
       return Left(Failure(e.toString()));
     }
