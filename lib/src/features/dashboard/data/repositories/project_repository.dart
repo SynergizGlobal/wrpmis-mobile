@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/result/failure.dart';
 import 'package:wr_pmis_mobile/src/core/result/result.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/project_api_data_source.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/new_activity_row.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/p6_data_history_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_detail.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
@@ -462,6 +463,260 @@ class ProjectRepository {
       return Right(msg);
     } on DioException catch (e) {
       return Left(Failure(e.message ?? 'Failed to upload P6 data'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesContracts() async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchNewActivitiesContracts();
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String id =
+            (row['contract_id'] ?? row['contract_id_fk'] ?? '').toString().trim();
+        final String shortName =
+            (row['contract_short_name'] ?? '').toString().trim();
+        final String name = (row['contract_name'] ?? '').toString().trim();
+        final String projectId =
+            (row['project_id_fk'] ?? row['project_id'] ?? '').toString().trim();
+        final String label =
+            shortName.isNotEmpty ? shortName : (name.isNotEmpty ? name : id);
+        return DropdownOption(
+          id: id,
+          name: label,
+          extra: projectId.isEmpty ? null : projectId,
+        );
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load contracts'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesProjects() async {
+    try {
+      final List<Map<String, dynamic>> projectRows =
+          await _api.fetchProjectsList();
+      final Result<List<DropdownOption>> contractsResult =
+          await getNewActivitiesContracts();
+      final Set<String> projectIds = <String>{};
+      contractsResult.fold(
+        (_) {},
+        (List<DropdownOption> contracts) {
+          for (final DropdownOption c in contracts) {
+            final String? pid = c.extra;
+            if (pid != null && pid.isNotEmpty) {
+              projectIds.add(pid);
+            }
+          }
+        },
+      );
+
+      final List<DropdownOption> options =
+          projectRows.map((Map<String, dynamic> row) {
+        final String id =
+            (row['project_id'] ?? row['project_id_fk'] ?? '').toString().trim();
+        final String name =
+            (row['project_name'] ?? row['projectName'] ?? id).toString().trim();
+        return DropdownOption(id: id, name: name.isEmpty ? id : name);
+      }).where((DropdownOption o) {
+        if (o.id.isEmpty) {
+          return false;
+        }
+        if (projectIds.isEmpty) {
+          return true;
+        }
+        return projectIds.contains(o.id);
+      }).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load projects'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesStructureTypes({
+    required String contractId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchNewActivitiesStructureTypes(contractId: contractId);
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String type = (row['structure_type'] ?? row['structure_type_fk'] ?? '')
+            .toString()
+            .trim();
+        return DropdownOption(id: type, name: type);
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load structure types'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesStructures({
+    required String contractId,
+    required String structureType,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchNewActivitiesStructures(
+        contractId: contractId,
+        structureType: structureType,
+      );
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String id = (row['strip_chart_structure_id_fk'] ??
+                row['structure'] ??
+                row['strip_chart_structure'] ??
+                '')
+            .toString()
+            .trim();
+        return DropdownOption(id: id, name: id);
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load structures'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesComponents({
+    required String contractId,
+    required String structureId,
+    required String structureType,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchNewActivitiesComponents(
+        contractId: contractId,
+        structureId: structureId,
+        structureType: structureType,
+      );
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String id = (row['strip_chart_component'] ?? '').toString().trim();
+        return DropdownOption(id: id, name: id);
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load components'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getNewActivitiesElements({
+    required String contractId,
+    required String structureId,
+    required String component,
+    required String structureType,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchNewActivitiesElements(
+        contractId: contractId,
+        structureId: structureId,
+        component: component,
+        structureType: structureType,
+      );
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String id =
+            (row['strip_chart_component_id'] ?? '').toString().trim();
+        return DropdownOption(id: id, name: id);
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load elements'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<NewActivityRow>>> getNewActivitiesFiltersList({
+    required String contractId,
+    required String structureId,
+    required String component,
+    required String structureType,
+    String elementId = '',
+  }) async {
+    try {
+      final List<NewActivityRow> rows =
+          await _api.fetchNewActivitiesFiltersList(
+        contractId: contractId,
+        structureId: structureId,
+        component: component,
+        structureType: structureType,
+        elementId: elementId,
+      );
+      return Right(rows);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load activities'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getContractStructures({
+    required String contractId,
+  }) async {
+    try {
+      final List<Map<String, dynamic>> rows =
+          await _api.fetchContractStructures(contractId: contractId);
+      final List<DropdownOption> options = rows.map((Map<String, dynamic> row) {
+        final String id = (row['strip_chart_structure_id_fk'] ??
+                row['strip_chart_structure_id'] ??
+                row['structure_id'] ??
+                '')
+            .toString()
+            .trim();
+        final String name = (row['strip_chart_structure_name'] ??
+                row['structure_name'] ??
+                row['strip_chart_structure_id_fk'] ??
+                id)
+            .toString()
+            .trim();
+        return DropdownOption(id: id, name: name.isEmpty ? id : name);
+      }).where((DropdownOption o) => o.id.isNotEmpty).toList();
+      return Right(options);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load structures'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<NewActivityRow>>> getModifyActualsFiltersList({
+    required String contractId,
+    String structureId = '',
+    String searchStr = '',
+  }) async {
+    try {
+      final List<NewActivityRow> rows =
+          await _api.fetchModifyActualsFiltersList(
+        contractId: contractId,
+        structureId: structureId,
+        searchStr: searchStr,
+      );
+      return Right(rows);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load activities'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<NewActivitiesLatestInfo?>> getNewActivitiesLatestRow() async {
+    try {
+      final NewActivitiesLatestInfo? info =
+          await _api.fetchNewActivitiesLatestRow();
+      return Right(info);
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load latest update'));
     } catch (e) {
       return Left(Failure(e.toString()));
     }

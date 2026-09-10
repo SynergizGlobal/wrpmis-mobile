@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/core/network/dio_client.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/new_activity_row.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/p6_data_history_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_detail.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_form_edit_detail.dart';
@@ -614,6 +615,173 @@ class ProjectApiDataSource {
       return message;
     }
     return 'P6 data uploaded successfully.';
+  }
+
+  // ── New Activities Update ───────────────────────────────────────────
+
+  /// GET /ajax/getNewActivitiesUpdateContractsList
+  Future<List<Map<String, dynamic>>> fetchNewActivitiesContracts() async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesContractsPath,
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getStructureTypesInActivitiesUpdate
+  Future<List<Map<String, dynamic>>> fetchNewActivitiesStructureTypes({
+    required String contractId,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesStructureTypesPath,
+      queryParameters: <String, dynamic>{'contract_id_fk': contractId},
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getNewActivitiesUpdateStructures
+  Future<List<Map<String, dynamic>>> fetchNewActivitiesStructures({
+    required String contractId,
+    required String structureType,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesStructuresPath,
+      queryParameters: <String, dynamic>{
+        'contract_id_fk': contractId,
+        'structure_type_fk': structureType,
+      },
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getNewActivitiesUpdateComponentsList
+  Future<List<Map<String, dynamic>>> fetchNewActivitiesComponents({
+    required String contractId,
+    required String structureId,
+    required String structureType,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesComponentsPath,
+      queryParameters: <String, dynamic>{
+        'contract_id_fk': contractId,
+        'strip_chart_structure_id_fk': structureId,
+        'structure_type_fk': structureType,
+      },
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getNewActivitiesUpdateComponentIdsList (Element)
+  Future<List<Map<String, dynamic>>> fetchNewActivitiesElements({
+    required String contractId,
+    required String structureId,
+    required String component,
+    required String structureType,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesElementsPath,
+      queryParameters: <String, dynamic>{
+        'contract_id_fk': contractId,
+        'strip_chart_structure_id_fk': structureId,
+        'strip_chart_component': component,
+        'structure_type_fk': structureType,
+      },
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getNewActivitiesfiltersList
+  Future<List<NewActivityRow>> fetchNewActivitiesFiltersList({
+    required String contractId,
+    required String structureId,
+    required String component,
+    required String structureType,
+    String elementId = '',
+    String activityId = '',
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesFiltersPath,
+      queryParameters: <String, dynamic>{
+        'strip_chart_component_id': elementId,
+        'strip_chart_activity_id': activityId,
+        'strip_chart_structure_id_fk': structureId,
+        'contract_id_fk': contractId,
+        'strip_chart_component': component,
+        'structure_type_fk': structureType,
+      },
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data))
+        .map(NewActivityRow.fromJson)
+        .toList();
+  }
+
+  /// GET /ajax/getContractStructures?contract_id_fk=
+  Future<List<Map<String, dynamic>>> fetchContractStructures({
+    required String contractId,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.contractStructuresPath,
+      queryParameters: <String, dynamic>{'contract_id_fk': contractId},
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data));
+  }
+
+  /// GET /ajax/getNewActivitiesfiltersList for Modify Actuals
+  /// (contract + optional structure + searchStr; no component/type).
+  Future<List<NewActivityRow>> fetchModifyActualsFiltersList({
+    required String contractId,
+    String structureId = '',
+    String searchStr = '',
+  }) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesFiltersPath,
+      queryParameters: <String, dynamic>{
+        'contract_id_fk': contractId,
+        'strip_chart_structure_id_fk': structureId,
+        'searchStr': searchStr,
+      },
+      options: _ajaxGetOptions,
+    );
+    return _asList(_decodeJson(response.data))
+        .map(NewActivityRow.fromJson)
+        .toList();
+  }
+
+  /// GET /ajax/getLatestRowData
+  Future<NewActivitiesLatestInfo?> fetchNewActivitiesLatestRow() async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesLatestRowPath,
+      options: _ajaxGetOptions,
+    );
+    final List<Map<String, dynamic>> rows =
+        _asList(_decodeJson(response.data));
+    if (rows.isEmpty) {
+      return null;
+    }
+    return NewActivitiesLatestInfo.fromJson(rows.first);
+  }
+
+  /// GET /ajax/bindData?activity_id=
+  Future<NewActivitiesLatestInfo?> fetchNewActivitiesBindData(
+    String activityId,
+  ) async {
+    final response = await _dio.get<dynamic>(
+      ApiConstants.newActivitiesBindDataPath,
+      queryParameters: <String, dynamic>{'activity_id': activityId},
+      options: _ajaxGetOptions,
+    );
+    final List<Map<String, dynamic>> rows =
+        _asList(_decodeJson(response.data));
+    if (rows.isEmpty) {
+      return null;
+    }
+    return NewActivitiesLatestInfo.fromJson(rows.first);
   }
 
   String _stripHtml(String raw) {

@@ -64,6 +64,25 @@ class ApiConstants {
   static const String p6RevisedTemplateFile = 'P6RevisedFile.xlsx';
   static const String p6UpdateTemplateFile = 'P6UpdateFile.xlsx';
 
+  /// New Activities Update (Execution & Monitoring).
+  static const String newActivitiesContractsPath =
+      '/ajax/getNewActivitiesUpdateContractsList';
+  static const String newActivitiesStructureTypesPath =
+      '/ajax/getStructureTypesInActivitiesUpdate';
+  static const String newActivitiesStructuresPath =
+      '/ajax/getNewActivitiesUpdateStructures';
+  static const String newActivitiesComponentsPath =
+      '/ajax/getNewActivitiesUpdateComponentsList';
+  static const String newActivitiesElementsPath =
+      '/ajax/getNewActivitiesUpdateComponentIdsList';
+  static const String newActivitiesFiltersPath =
+      '/ajax/getNewActivitiesfiltersList';
+  static const String newActivitiesLatestRowPath = '/ajax/getLatestRowData';
+  static const String newActivitiesBindDataPath = '/ajax/bindData';
+
+  /// Modify Actuals (Execution & Monitoring) — structures by contract.
+  static const String contractStructuresPath = '/ajax/getContractStructures';
+
   /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';
