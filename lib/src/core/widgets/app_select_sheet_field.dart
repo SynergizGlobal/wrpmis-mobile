@@ -12,6 +12,8 @@ class AppSelectSheetField<T> extends StatelessWidget {
     this.leadingIcon,
     this.enabled = true,
     this.placeholderText = 'Select',
+    this.isDense = false,
+    this.contentPadding,
   });
 
   final String label;
@@ -23,13 +25,14 @@ class AppSelectSheetField<T> extends StatelessWidget {
   final IconData? leadingIcon;
   final bool enabled;
   final String placeholderText;
+  final bool isDense;
+  final EdgeInsetsGeometry? contentPadding;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final bool filled = value != null;
-    final String selectedLabel =
-        value != null ? itemLabelBuilder(value as T) : '';
+    final bool filled = value != null && '$value'.trim().isNotEmpty;
+    final String selectedLabel = filled ? itemLabelBuilder(value as T) : '';
 
     return Material(
       color: Colors.transparent,
@@ -171,6 +174,8 @@ class AppSelectSheetField<T> extends StatelessWidget {
               decoration: InputDecoration(
                 filled: true,
                 enabled: enabled,
+                isDense: isDense,
+                contentPadding: contentPadding,
                 prefixIcon: leadingIcon != null
                     ? Icon(leadingIcon, size: 22)
                     : null,

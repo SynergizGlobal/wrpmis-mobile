@@ -14,6 +14,8 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/report_men
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_module.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/work_category_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/providers/home_dashboard_provider.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -564,6 +566,12 @@ class _UpdateFormsSectionView extends StatelessWidget {
         return;
       case 'modify_actuals':
         context.pushNamed(ModifyActualsPage.routeName);
+        return;
+      case 'contract':
+        context.pushNamed(ContractListPage.routeName);
+        return;
+      case 'contractor':
+        context.pushNamed(ContractorPage.routeName);
         return;
       default:
         GlobalDialog.info(

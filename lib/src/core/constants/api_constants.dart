@@ -83,6 +83,27 @@ class ApiConstants {
   /// Modify Actuals (Execution & Monitoring) — structures by contract.
   static const String contractStructuresPath = '/ajax/getContractStructures';
 
+  /// Contracts / Tenders list + form.
+  static const String contractsListPath = '/ajax/getContracts';
+  static const String contractHodFilterPath =
+      '/ajax/getDesignationsFilterListInContract';
+  static const String contractDyHodFilterPath =
+      '/ajax/getDyHODDesignationsFilterListInContract';
+  static const String contractContractorFilterPath =
+      '/ajax/getContractorsFilterListInContract';
+  static const String contractStatusFilterPath =
+      '/ajax/getContractStatusFilterListInContract';
+  static const String contractWorkStatusFilterPath =
+      '/ajax/getStatusFilterListInContract';
+  static const String contractHodListPath = '/ajax/getHodList';
+  static const String contractDyHodListPath = '/ajax/getDyHodList';
+  static const String contractExecutivesPath =
+      '/ajax/getExecutivesListForContractForm';
+  static const String contractFormWorkStatusPath =
+      '/ajax/getContractStatusLIstFormContractFom';
+  static const String contractAddFormPath = '/add-contract-form';
+  static const String contractGetPath = '/get-contract';
+
   /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';

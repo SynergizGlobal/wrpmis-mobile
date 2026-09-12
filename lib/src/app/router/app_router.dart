@@ -7,6 +7,9 @@ import 'package:wr_pmis_mobile/src/features/auth/domain/entities/auth_session.da
 import 'package:wr_pmis_mobile/src/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_form_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -151,6 +154,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: ModifyActualsPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const ModifyActualsPage(),
+      ),
+      GoRoute(
+        path: ContractListPage.routePath,
+        name: ContractListPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ContractListPage(),
+      ),
+      GoRoute(
+        path: ContractFormPage.routePath,
+        name: ContractFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final String? contractId =
+              state.extra is String ? state.extra as String : null;
+          return ContractFormPage(contractId: contractId);
+        },
+      ),
+      GoRoute(
+        path: ContractorPage.routePath,
+        name: ContractorPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ContractorPage(),
       ),
       GoRoute(
         path: ProfilePage.routePath,

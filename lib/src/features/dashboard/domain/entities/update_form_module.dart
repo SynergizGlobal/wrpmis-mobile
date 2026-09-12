@@ -58,6 +58,18 @@ class UpdateFormModule {
       title: 'Contracts/Tenders',
       icon: Icons.description_outlined,
       assetIcon: 'assets/update_forms_icons/contracts_tenders.png',
+      subItems: <UpdateFormSubItem>[
+        UpdateFormSubItem(
+          id: 'contract',
+          title: 'Contract',
+          icon: Icons.description_outlined,
+        ),
+        UpdateFormSubItem(
+          id: 'contractor',
+          title: 'Contractor',
+          icon: Icons.handshake_outlined,
+        ),
+      ],
     ),
     UpdateFormModule(
       id: 'execution_monitoring',
