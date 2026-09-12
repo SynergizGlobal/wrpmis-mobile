@@ -14,6 +14,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/report_men
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_module.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/work_category_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/providers/home_dashboard_provider.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
@@ -489,6 +490,10 @@ class _UpdateFormsSectionView extends StatelessWidget {
     BuildContext context,
     UpdateFormModule module,
   ) async {
+    if (module.id == 'issues') {
+      context.pushNamed(IssueListPage.routeName);
+      return;
+    }
     final List<UpdateFormSubItem> subItems = module.subItems;
     if (subItems.isEmpty) {
       GlobalDialog.info(
@@ -572,6 +577,9 @@ class _UpdateFormsSectionView extends StatelessWidget {
         return;
       case 'contractor':
         context.pushNamed(ContractorPage.routeName);
+        return;
+      case 'issues':
+        context.pushNamed(IssueListPage.routeName);
         return;
       default:
         GlobalDialog.info(

@@ -104,6 +104,45 @@ class ApiConstants {
   static const String contractAddFormPath = '/add-contract-form';
   static const String contractGetPath = '/get-contract';
 
+  /// Contractors list + form.
+  static const String contractorsListPath = '/ajax/get-contractor';
+  static const String contractorAddFormPath = '/add-contractor-form';
+  static const String contractorGetPath = '/get-contractor';
+  static const String contractorAddPath = '/add-contractor';
+  static const String contractorUpdatePath = '/update-contractor';
+  static const String contractorPanCheckPath =
+      '/ajax/getPanNumberListFormContactor';
+  static const String contractorExportPath = '/export-contractor';
+
+  /// Issues list + form (Update Forms → Issues). Export / save APIs later.
+  static const String issuesListPath = '/ajax/getIssuesList';
+  static const String issueHodFilterPath = '/ajax/getHODListFilterInIssue';
+  static const String issueContractFilterPath =
+      '/ajax/getContractsListFilterInIssue';
+  static const String issueDepartmentFilterPath =
+      '/ajax/getDepartmentsListFilterInIssue';
+  static const String issueCategoryFilterPath =
+      '/ajax/getCategoryListFilterInIssue';
+  static const String issueStatusFilterPath =
+      '/ajax/getStatusListFilterInIssue';
+  static const String issueFormContractsPath =
+      '/ajax/getContractsListForIssuesForm';
+  static const String issueFormCategoryPath =
+      '/ajax/getIssueCategoryListForIssuesForm';
+  static const String issueFormTitlesPath =
+      '/ajax/getIssueTitlesListForIssuesForm';
+  static const String issueFormStructuresPath =
+      '/ajax/getStructureListForIssue';
+  static const String issueFormComponentsPath =
+      '/ajax/getComponentListForIssue';
+  static const String issueFormStatusPath =
+      '/ajax/getIssueStatusListForIssuesForm';
+  static const String issueFormResponsiblePath =
+      '/ajax/getResponsiblePersonsInIssue';
+  static const String issueFormLaDetailsPath = '/ajax/getLADetails';
+  static const String issueAddFormPath = '/add-issue-form';
+  static const String issueGetPath = '/get-issue';
+
   /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';

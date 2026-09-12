@@ -31,18 +31,22 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   bool _seeded = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_seeded) {
-      return;
-    }
-    _seeded = true;
-    final String email =
-        ref.read(authControllerProvider).valueOrNull?.emailId.trim() ?? '';
-    if (email.isNotEmpty) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _seeded) {
+        return;
+      }
+      _seeded = true;
+      final String email =
+          ref.read(authControllerProvider).valueOrNull?.emailId.trim() ?? '';
+      if (email.isEmpty) {
+        return;
+      }
       _emailController.text = email;
       ref.read(forgotPasswordControllerProvider.notifier).seedEmail(email);
-    }
+      setState(() {});
+    });
   }
 
   @override

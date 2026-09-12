@@ -9,11 +9,15 @@ import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/forgot_passw
 import 'package:wr_pmis_mobile/src/features/auth/presentation/pages/login_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/dashboard_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/issue_list_item.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_form_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/add_project_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_details_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/project_form_page.dart';
@@ -175,6 +179,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: ContractorPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const ContractorPage(),
+      ),
+      GoRoute(
+        path: ContractorFormPage.routePath,
+        name: ContractorFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final String? contractorId =
+              state.extra is String ? state.extra as String : null;
+          return ContractorFormPage(contractorId: contractorId);
+        },
+      ),
+      GoRoute(
+        path: IssueListPage.routePath,
+        name: IssueListPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const IssueListPage(),
+      ),
+      GoRoute(
+        path: IssueFormPage.routePath,
+        name: IssueFormPage.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final Object? extra = state.extra;
+          if (extra is IssueListItem) {
+            return IssueFormPage(issueId: extra.issueId, seed: extra);
+          }
+          if (extra is String && extra.isNotEmpty) {
+            return IssueFormPage(issueId: extra);
+          }
+          return const IssueFormPage();
+        },
       ),
       GoRoute(
         path: ProfilePage.routePath,
