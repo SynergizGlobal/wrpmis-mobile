@@ -7,7 +7,7 @@ class AppConstants {
   /// App bar / login brand line — product name, not "Western Railways".
   static const String orgName = 'WR-PMIS';
 
-  static const String welcomeTitle = 'Welcome to WR-PMIS';
+  static const String welcomeTitle = 'Welcome to WR-PMIS by Synergiz';
 
   static const String publisherLine = 'by Synergiz';
 }

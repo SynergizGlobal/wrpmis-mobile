@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/core/network/dio_client.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/project_page_parser.dart';
 
 class DashboardRemoteDataSource {
   const DashboardRemoteDataSource(this._dio);
@@ -29,8 +32,18 @@ class DashboardRemoteDataSource {
     return _asMap(response.data);
   }
 
-  /// GET `/api/v1/projects/list` — JSON only, requires logged-in session cookie.
+  /// Prefer API-003 `GET /api/v1/projects/list` when deployed.
+  /// On QA it 404s — fall back to the web Projects page (`GET /project`)
+  /// and parse `#project_table` (same source that worked before).
   Future<List<Map<String, dynamic>>> fetchProjects() async {
+    final List<Map<String, dynamic>>? fromApi = await _tryFetchProjectsApi();
+    if (fromApi != null) {
+      return fromApi;
+    }
+    return _fetchProjectsFromWebPage();
+  }
+
+  Future<List<Map<String, dynamic>>?> _tryFetchProjectsApi() async {
     final Response<dynamic> response = await _dio.get<dynamic>(
       ApiConstants.projectsApiPath,
       options: Options(
@@ -39,6 +52,10 @@ class DashboardRemoteDataSource {
             status != null && status >= 200 && status < 500,
       ),
     );
+    final int status = response.statusCode ?? 0;
+    if (status == 404) {
+      return null;
+    }
     final dynamic data = response.data;
     if (data is String && data.toLowerCase().contains('<title>login</title>')) {
       throw DioException(
@@ -48,7 +65,33 @@ class DashboardRemoteDataSource {
         message: 'Session expired. Please sign in again.',
       );
     }
-    if (response.statusCode == 401 || response.statusCode == 403) {
+    if (status == 401 || status == 403) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Session expired. Please sign in again.',
+      );
+    }
+    if (status != 200) {
+      return null;
+    }
+    return _asListOfMaps(data);
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchProjectsFromWebPage() async {
+    final Response<dynamic> response = await _dio.get<dynamic>(
+      ApiConstants.projectsPagePath,
+      options: Options(
+        responseType: ResponseType.plain,
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+    final String body = response.data?.toString() ?? '';
+    if (_isLoginHtml(body) ||
+        response.statusCode == 401 ||
+        response.statusCode == 403) {
       throw DioException(
         requestOptions: response.requestOptions,
         response: response,
@@ -64,7 +107,21 @@ class DashboardRemoteDataSource {
         message: 'Unable to load projects.',
       );
     }
-    return _asListOfMaps(data);
+
+    final String trimmed = body.trimLeft();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return _asListOfMaps(jsonDecode(trimmed));
+      } catch (_) {
+        // Fall through to HTML table parse.
+      }
+    }
+    return ProjectPageParser.parse(body);
+  }
+
+  bool _isLoginHtml(String body) {
+    final String lower = body.toLowerCase();
+    return lower.contains('<title>login</title>');
   }
 
   List<Map<String, dynamic>> _asListOfMaps(dynamic data) {

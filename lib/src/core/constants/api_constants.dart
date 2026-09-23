@@ -2,21 +2,27 @@ class ApiConstants {
   const ApiConstants._();
 
   // ── Auth ──────────────────────────────────────────────────────────────
+  /// Web form login (working on QA + prod). Prefer this over [apiLoginPath].
   static const String loginPath = '/login';
-  /// API-007 JSON login (preferred for mobile).
+  /// API-007 JSON login — currently 404 on QA/prod; kept for when backend ships.
   static const String apiLoginPath = '/api/v1/login';
   static const String logoutPath = '/logout';
   static const String homePath = '/home';
+  /// Forgot-password APIs may also 404 until backend ships them.
   static const String forgotSendOtpPath = '/api/forgot/send-otp';
   static const String forgotVerifyOtpPath = '/api/forgot/verify-otp';
   static const String forgotResetPasswordPath = '/api/forgot/reset-password';
 
   // ── Projects ──────────────────────────────────────────────────────────
+  /// Doc API-003 — currently 404 on QA/prod until backend ships it.
   static const String projectsListPath = '/api/v1/projects/list';
   static const String projectsFormDataPath = '/api/v1/projects/add-form-data';
   static const String projectsPath = '/api/v1/projects';
   static const String projectsExportPath = '/api/v1/projects/export';
   // GET /api/v1/projects/{project_id} — single project by ID
+
+  /// Web Update Forms → Projects page (`#project_table`). Working on QA.
+  static const String projectsPagePath = '/project';
 
   // ── Structures (Works) ────────────────────────────────────────────────
   /// Doc v1 paths (may 404 on QA until backend ships them).
@@ -142,6 +148,20 @@ class ApiConstants {
   static const String issueFormLaDetailsPath = '/ajax/getLADetails';
   static const String issueAddFormPath = '/add-issue-form';
   static const String issueGetPath = '/get-issue';
+
+  /// Design & Drawing (Update Forms).
+  static const String designContractFilterPath =
+      '/ajax/getContractListFilterInDesign';
+  static const String designStructureTypeFilterPath =
+      '/ajax/getStructureListFilterInDesign';
+  static const String designDrawingTypeFilterPath =
+      '/ajax/getDrawingTypeListFilterInDesign';
+  static const String designsListPath = '/ajax/getDesignsList';
+  static const String designUploadsListPath = '/ajax/getDesignUploadsList';
+  static const String designAddFormPath = '/add-design-form';
+  static const String designGetPath = '/get-design';
+  static const String designExportPath = '/export-design';
+  static const String designTemplatePath = '/download-design-template';
 
   /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';

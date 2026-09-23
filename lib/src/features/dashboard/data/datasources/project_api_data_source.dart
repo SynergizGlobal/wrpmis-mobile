@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/core/network/dio_client.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/project_page_parser.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/new_activity_row.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/p6_data_history_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_detail.dart';
@@ -19,10 +20,43 @@ class ProjectApiDataSource {
 
   // ── Projects ────────────────────────────────────────────────────────
 
-  /// GET /api/v1/projects/list
+  /// Prefer API-003; on QA 404 fall back to web `GET /project` HTML table.
   Future<List<Map<String, dynamic>>> fetchProjectsList() async {
-    final response = await _dio.get<dynamic>(ApiConstants.projectsListPath);
-    return _asList(response.data);
+    final Response<dynamic> apiResponse = await _dio.get<dynamic>(
+      ApiConstants.projectsListPath,
+      options: Options(
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+    if (apiResponse.statusCode == 200) {
+      return _asList(apiResponse.data);
+    }
+
+    final Response<dynamic> pageResponse = await _dio.get<dynamic>(
+      ApiConstants.projectsPagePath,
+      options: Options(
+        responseType: ResponseType.plain,
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+    final String body = pageResponse.data?.toString() ?? '';
+    if (pageResponse.statusCode != 200) {
+      throw DioException(
+        requestOptions: pageResponse.requestOptions,
+        response: pageResponse,
+        type: DioExceptionType.badResponse,
+        message: 'Unable to load projects.',
+      );
+    }
+    final String trimmed = body.trimLeft();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return _asList(jsonDecode(trimmed));
+      } catch (_) {}
+    }
+    return ProjectPageParser.parse(body);
   }
 
   /// GET /api/v1/projects/add-form-data

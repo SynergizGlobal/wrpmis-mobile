@@ -17,6 +17,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/home/provider
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawing/design_drawing_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -492,6 +493,10 @@ class _UpdateFormsSectionView extends StatelessWidget {
   ) async {
     if (module.id == 'issues') {
       context.pushNamed(IssueListPage.routeName);
+      return;
+    }
+    if (module.id == 'design_drawing') {
+      context.pushNamed(DesignDrawingPage.routeName);
       return;
     }
     final List<UpdateFormSubItem> subItems = module.subItems;

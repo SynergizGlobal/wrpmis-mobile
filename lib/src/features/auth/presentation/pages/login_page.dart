@@ -116,13 +116,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     const Color primary = AppTheme.brandPrimary;
     const Color onPrimary = Colors.white;
-    final double topInset = MediaQuery.paddingOf(context).top;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: AppTheme.brandPrimary,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
+        statusBarColor: AppTheme.scaffoldLight,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
         systemNavigationBarColor: AppTheme.scaffoldLight,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -130,36 +129,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         backgroundColor: AppTheme.scaffoldLight,
         body: Stack(
           children: <Widget>[
-            Column(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.fromLTRB(16, topInset + 14, 16, 14),
-              decoration: const BoxDecoration(
-                color: primary,
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: Color(0x22000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Text(
-                AppConstants.welcomeTitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: onPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.2,
-                ),
-              ),
-            ),
-            Expanded(
-              child: SafeArea(
-                top: false,
-                child: SingleChildScrollView(
+            SafeArea(
+              child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   child: Column(
                     children: <Widget>[
@@ -167,18 +138,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const ProductBrandIcon(size: 88, borderRadius: 18),
                       const SizedBox(height: 10),
                       Text(
-                        AppConstants.orgName,
+                        AppConstants.welcomeTitle,
+                        textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF3A2414),
-                            ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        AppConstants.publisherLine,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6B5344),
                             ),
                       ),
                       const SizedBox(height: 8),
@@ -360,9 +324,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ],
                   ),
                 ),
-              ),
-            ),
-          ],
             ),
             if (_autoLoggingIn)
               Positioned.fill(

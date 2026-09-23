@@ -7,7 +7,7 @@ class AppAssets {
   const AppAssets._();
 
   /// Synergiz product mark shown in login, home app bar, and profile.
-  static const String uiProductIcon = 'assets/app_icon_mark.png';
+  static const String uiProductIcon = 'assets/app_icon.png';
 
   /// Client logo for document generation only — do not use in UI.
   static const String internalDocumentClientLogo =
