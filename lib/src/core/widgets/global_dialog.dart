@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_dialog.dart';
 
-/// App-wide user feedback. Use this instead of SnackBar / Toast everywhere.
-///
-/// ```dart
-/// await GlobalDialog.info('Saved successfully.');
-/// await GlobalDialog.error('Unable to load data.');
-/// final bool ok = await GlobalDialog.confirm(
-///   title: 'Logout',
-///   message: 'Are you sure you want to log out?',
-/// );
-/// ```
+/// App-wide dialogs (prefer over SnackBar / toast).
 class GlobalDialog {
   const GlobalDialog._();
 

@@ -10,7 +10,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_fo
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/providers/project_form_providers.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/providers/project_list_provider.dart';
 
-/// Shared Add/Edit Project form matching the web Add Project screen.
 /// Pass [projectId] to edit; omit for add.
 class ProjectFormPage extends ConsumerStatefulWidget {
   const ProjectFormPage({super.key, this.projectId});

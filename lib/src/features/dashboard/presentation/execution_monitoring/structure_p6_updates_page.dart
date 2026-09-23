@@ -8,7 +8,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_fo
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/p6_new_data_sheet.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/providers/p6_data_history_providers.dart';
 
-/// Update Forms → Execution & Monitoring → Structure P6 Updates (web "P6 DATA HISTORY").
 class StructureP6UpdatesPage extends ConsumerStatefulWidget {
   const StructureP6UpdatesPage({super.key});
 

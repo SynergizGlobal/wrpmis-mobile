@@ -9,7 +9,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/providers/structure_form_list_providers.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/update_structure_form_page.dart';
 
-/// Update Forms → Works → Update Structure (web "Structure Form" list).
 class UpdateStructurePage extends ConsumerStatefulWidget {
   const UpdateStructurePage({super.key});
 

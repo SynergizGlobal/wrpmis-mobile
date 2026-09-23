@@ -1,14 +1,7 @@
 import 'package:dio/dio.dart';
 
-/// Prevents Tomcat/anonymous `Set-Cookie: JSESSIONID=…` from overwriting a
-/// real login session.
-///
-/// QA endpoints like `/ajax/getStructureList` return HTTP 200 with totals but
-/// **no `aaData`** when unauthenticated, and also issue a fresh JSESSIONID.
-/// Dio's [CookieManager] would save that cookie and wipe the logged-in session,
-/// leaving lists empty until the next manual login.
-///
-/// Only `/login` (and explicit `allowSetCookie`) may update session cookies.
+/// Blocks anonymous `Set-Cookie: JSESSIONID` except on login/forgot/logout
+/// (QA AJAX can return totals without `aaData` and overwrite the real session).
 class SessionCookieProtectionInterceptor extends Interceptor {
   const SessionCookieProtectionInterceptor();
 
@@ -17,7 +10,6 @@ class SessionCookieProtectionInterceptor extends Interceptor {
       return true;
     }
     if (options.extra['skipAuth'] == true) {
-      // Login / forgot-password flows may establish a session.
       final String path = options.path.toLowerCase();
       return path.contains('/login') ||
           path.contains('/forgot') ||

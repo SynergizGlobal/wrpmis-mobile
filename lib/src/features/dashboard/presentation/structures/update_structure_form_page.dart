@@ -10,7 +10,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_fo
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_form_edit_detail.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/providers/structure_form_edit_providers.dart';
 
-/// Update Forms → Works → Update Structure → pencil → Update Structure Form.
 class UpdateStructureFormPage extends ConsumerStatefulWidget {
   const UpdateStructureFormPage({super.key, required this.structureId});
 

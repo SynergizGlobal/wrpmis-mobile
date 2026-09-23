@@ -15,10 +15,7 @@ final sessionCookieManagerProvider =
   return SessionCookieManager.create();
 });
 
-/// Session-cookie Dio client.
-///
-/// Requires [sessionCookieManagerProvider] to be ready (bootstrapped at app
-/// start) so requests never go out without the cookie jar attached.
+/// Dio client with session cookie jar (bootstrap [sessionCookieManagerProvider] first).
 final dioProvider = Provider<Dio>((ref) {
   final appConfig = ref.watch(appConfigProvider);
   final SessionCookieManager sessionCookieManager =
@@ -51,8 +48,7 @@ final dioProvider = Provider<Dio>((ref) {
     AuthInterceptor(() => ref.read(authTokenProvider)),
   );
 
-  // CookieManager saves Set-Cookie on response. Protection runs *before* it
-  // (added after → first on response) and strips anonymous JSESSIONID updates.
+  // Protection interceptor is added after CookieManager so it runs first on response.
   dio.interceptors.add(sessionCookieManager.asInterceptor());
   dio.interceptors.add(const SessionCookieProtectionInterceptor());
 

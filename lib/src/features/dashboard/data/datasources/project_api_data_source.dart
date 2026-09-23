@@ -12,7 +12,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_form_list_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_list_item.dart';
 
-/// Handles all `/api/v1/projects` and `/api/v1/structures` endpoints.
+/// Projects and structures web/API calls.
 class ProjectApiDataSource {
   const ProjectApiDataSource(this._dio);
 
@@ -59,13 +59,11 @@ class ProjectApiDataSource {
     return ProjectPageParser.parse(body);
   }
 
-  /// GET /api/v1/projects/add-form-data
   Future<Map<String, dynamic>> fetchProjectFormData() async {
     final response = await _dio.get<dynamic>(ApiConstants.projectsFormDataPath);
     return _asMap(response.data);
   }
 
-  /// GET /api/v1/projects/{project_id}
   Future<Map<String, dynamic>> fetchProjectById(String projectId) async {
     final response = await _dio.get<dynamic>(
       '${ApiConstants.projectsPath}/$projectId',
@@ -73,7 +71,6 @@ class ProjectApiDataSource {
     return _asMap(response.data);
   }
 
-  /// GET /api/v1/projects/export — JSON `{ projects, projectPinkBook }`.
   Future<Map<String, dynamic>> fetchProjectsExport() async {
     final response = await _dio.get<dynamic>(
       ApiConstants.projectsExportPath,
@@ -111,7 +108,6 @@ class ProjectApiDataSource {
     return _asMap(response.data);
   }
 
-  /// POST /api/v1/projects
   Future<String> addProject(Map<String, dynamic> payload) async {
     final response = await _dio.post<dynamic>(
       ApiConstants.projectsPath,
@@ -122,7 +118,6 @@ class ProjectApiDataSource {
     return data['message']?.toString() ?? 'Project added.';
   }
 
-  /// PUT /api/v1/projects
   Future<String> updateProject(Map<String, dynamic> payload) async {
     final response = await _dio.put<dynamic>(
       ApiConstants.projectsPath,
@@ -135,8 +130,7 @@ class ProjectApiDataSource {
 
   // ── Structures ──────────────────────────────────────────────────────
 
-  /// Projects + structure types for the Add/Update Structure form.
-  /// Uses working web AJAX endpoints (v1 form-data is 404 on QA).
+  /// Web AJAX form data (v1 form-data 404 on QA).
   Future<Map<String, dynamic>> fetchStructureFormData() async {
     final List<Map<String, dynamic>> projects =
         await fetchStructureProjectFilter();
@@ -147,7 +141,6 @@ class ProjectApiDataSource {
     };
   }
 
-  /// POST /ajax/getStructureTypeListForFilter
   Future<List<Map<String, dynamic>>> fetchStructureTypeFilter({
     String? projectId,
   }) async {
@@ -169,7 +162,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// POST /get-structure — returns Update Structure HTML; parsed into groups.
   Future<StructureDetail> fetchStructureById(String structureId) async {
     final response = await _dio.post<dynamic>(
       ApiConstants.structuresGetPath,
@@ -187,7 +179,6 @@ class ProjectApiDataSource {
     return _parseStructureEditHtml(html, structureId);
   }
 
-  /// POST /add-structure (form-urlencoded, same fields as web).
   Future<String> addStructures(Map<String, dynamic> payload) async {
     await _dio.post<dynamic>(
       ApiConstants.structuresAddPath,
@@ -203,7 +194,6 @@ class ProjectApiDataSource {
     return 'Structure added.';
   }
 
-  /// POST /update-structure (form-urlencoded, same fields as web).
   Future<String> updateStructures(Map<String, dynamic> payload) async {
     await _dio.post<dynamic>(
       ApiConstants.structuresUpdatePath,
@@ -219,7 +209,6 @@ class ProjectApiDataSource {
     return 'Structure updated.';
   }
 
-  /// GET /ajax/getStructureList — same DataTables JSON the web Structure page uses.
   Future<StructureListResult> fetchStructureList({
     String? projectId,
     String search = '',
@@ -280,7 +269,6 @@ class ProjectApiDataSource {
     );
   }
 
-  /// POST /ajax/getProjectsListFilterInStructure
   Future<List<Map<String, dynamic>>> fetchStructureProjectFilter({
     String? projectId,
   }) async {
@@ -301,7 +289,6 @@ class ProjectApiDataSource {
 
   // ── Structure Form (Update Structure) ───────────────────────────────
 
-  /// GET /ajax/getStructuresList — Structure Form DataTables JSON.
   Future<StructureFormListResult> fetchStructureFormList({
     String? contractId,
     String? structureType,
@@ -347,7 +334,6 @@ class ProjectApiDataSource {
     );
   }
 
-  /// GET /ajax/getContractsFilterListInStructure
   Future<List<Map<String, dynamic>>> fetchStructureFormContractFilter({
     String? contractId,
     String? workStatus,
@@ -365,7 +351,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getWorkStatusListInStructure
   Future<List<Map<String, dynamic>>> fetchStructureFormWorkStatusFilter({
     String? workStatus,
     String? contractId,
@@ -383,7 +368,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getStructureTypeListForFilter (Structure Form filters).
   Future<List<Map<String, dynamic>>> fetchStructureFormTypeFilter({
     String? contractId,
     String? structureType,
@@ -399,7 +383,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// POST /get-structure-form — Update Structure Form HTML prefill.
   Future<StructureFormEditDetail> fetchStructureFormEdit(
     String structureId,
   ) async {
@@ -421,7 +404,6 @@ class ProjectApiDataSource {
     );
   }
 
-  /// POST /update-structure-form (multipart, same as web).
   Future<String> updateStructureForm(FormData formData) async {
     await _dio.post<dynamic>(
       ApiConstants.structureFormUpdatePath,
@@ -436,7 +418,6 @@ class ProjectApiDataSource {
     return 'Structure form updated.';
   }
 
-  /// GET /ajax/getContractsListForStructureFrom?project_id_fk=
   Future<List<Map<String, dynamic>>> fetchContractsForStructureForm({
     required String projectId,
   }) async {
@@ -448,7 +429,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getResponsibleExecutives?contract_id_fk=
   Future<List<Map<String, dynamic>>> fetchResponsibleExecutives({
     required String contractId,
   }) async {
@@ -462,7 +442,6 @@ class ProjectApiDataSource {
 
   // ── P6 Data History (Structure P6 Updates) ──────────────────────────
 
-  /// Shared filter query params for P6 New filter endpoints.
   Map<String, dynamic> _p6FilterQuery({
     String? contractId,
     String? uploadType,
@@ -475,7 +454,6 @@ class ProjectApiDataSource {
     };
   }
 
-  /// GET /ajax/getContractsListFilterInP6New
   Future<List<Map<String, dynamic>>> fetchP6ContractFilter({
     String? contractId,
     String? uploadType,
@@ -493,7 +471,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getUploadTypesFilterInP6New
   Future<List<Map<String, dynamic>>> fetchP6UploadTypeFilter({
     String? contractId,
     String? uploadType,
@@ -511,7 +488,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getStatusListFilterInP6New
   Future<List<Map<String, dynamic>>> fetchP6StatusFilter({
     String? contractId,
     String? uploadType,
@@ -529,7 +505,7 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// POST /ajax/getP6NewActivityData — may return a raw JSON array or DataTables.
+  /// Response may be a raw JSON array or DataTables-shaped map.
   Future<P6DataHistoryListResult> fetchP6DataHistoryList({
     String? contractId,
     String? uploadType,
@@ -578,8 +554,7 @@ class ProjectApiDataSource {
     );
   }
 
-  /// POST `/api/v1/p6/upload-baseline` | `revised-activities` | `update-activities`
-  /// multipart: project_id_fk, contract_id_fk, data_date (dd-mm-yyyy), p6dataFile.
+  /// Multipart P6 upload (`apiPath` is one of the v1 upload endpoints).
   Future<String> uploadP6Data({
     required String apiPath,
     required String projectId,
@@ -653,7 +628,6 @@ class ProjectApiDataSource {
 
   // ── New Activities Update ───────────────────────────────────────────
 
-  /// GET /ajax/getNewActivitiesUpdateContractsList
   Future<List<Map<String, dynamic>>> fetchNewActivitiesContracts() async {
     final response = await _dio.get<dynamic>(
       ApiConstants.newActivitiesContractsPath,
@@ -662,7 +636,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getStructureTypesInActivitiesUpdate
   Future<List<Map<String, dynamic>>> fetchNewActivitiesStructureTypes({
     required String contractId,
   }) async {
@@ -674,7 +647,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getNewActivitiesUpdateStructures
   Future<List<Map<String, dynamic>>> fetchNewActivitiesStructures({
     required String contractId,
     required String structureType,
@@ -690,7 +662,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getNewActivitiesUpdateComponentsList
   Future<List<Map<String, dynamic>>> fetchNewActivitiesComponents({
     required String contractId,
     required String structureId,
@@ -708,7 +679,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getNewActivitiesUpdateComponentIdsList (Element)
   Future<List<Map<String, dynamic>>> fetchNewActivitiesElements({
     required String contractId,
     required String structureId,
@@ -728,7 +698,6 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getNewActivitiesfiltersList
   Future<List<NewActivityRow>> fetchNewActivitiesFiltersList({
     required String contractId,
     required String structureId,
@@ -754,7 +723,6 @@ class ProjectApiDataSource {
         .toList();
   }
 
-  /// GET /ajax/getContractStructures?contract_id_fk=
   Future<List<Map<String, dynamic>>> fetchContractStructures({
     required String contractId,
   }) async {
@@ -766,8 +734,7 @@ class ProjectApiDataSource {
     return _asList(_decodeJson(response.data));
   }
 
-  /// GET /ajax/getNewActivitiesfiltersList for Modify Actuals
-  /// (contract + optional structure + searchStr; no component/type).
+  /// Same endpoint as new activities; query omits component/type.
   Future<List<NewActivityRow>> fetchModifyActualsFiltersList({
     required String contractId,
     String structureId = '',
@@ -787,7 +754,6 @@ class ProjectApiDataSource {
         .toList();
   }
 
-  /// GET /ajax/getLatestRowData
   Future<NewActivitiesLatestInfo?> fetchNewActivitiesLatestRow() async {
     final response = await _dio.get<dynamic>(
       ApiConstants.newActivitiesLatestRowPath,
@@ -801,7 +767,6 @@ class ProjectApiDataSource {
     return NewActivitiesLatestInfo.fromJson(rows.first);
   }
 
-  /// GET /ajax/bindData?activity_id=
   Future<NewActivitiesLatestInfo?> fetchNewActivitiesBindData(
     String activityId,
   ) async {
@@ -935,7 +900,6 @@ class ProjectApiDataSource {
           break;
         }
       }
-      // Skip empty template rows without selection at the end if duplicate empty.
       contractIds.add(selected ?? '');
     }
 

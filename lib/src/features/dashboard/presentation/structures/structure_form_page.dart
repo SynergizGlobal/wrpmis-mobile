@@ -9,7 +9,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/structure_form_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/structures/providers/structure_form_providers.dart';
 
-/// Shared Add/Update Structure form matching the web screens.
 /// Pass [structureId] (list-row id) to update; omit for add.
 class StructureFormPage extends ConsumerStatefulWidget {
   const StructureFormPage({super.key, this.structureId});

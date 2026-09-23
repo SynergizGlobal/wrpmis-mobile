@@ -19,9 +19,8 @@ class ApiConstants {
   static const String projectsFormDataPath = '/api/v1/projects/add-form-data';
   static const String projectsPath = '/api/v1/projects';
   static const String projectsExportPath = '/api/v1/projects/export';
-  // GET /api/v1/projects/{project_id} — single project by ID
 
-  /// Web Update Forms → Projects page (`#project_table`). Working on QA.
+  /// Web Projects page (`#project_table`) when API-003 404s on QA.
   static const String projectsPagePath = '/project';
 
   // ── Structures (Works) ────────────────────────────────────────────────
@@ -30,21 +29,18 @@ class ApiConstants {
       '/api/v1/structures/add-form-data';
   static const String structuresPath = '/api/v1/structures';
 
-  /// Web Structure list (DataTables JSON). Same source as Update Forms → Structure.
   static const String structuresListPath = '/ajax/getStructureList';
   static const String structuresProjectFilterPath =
       '/ajax/getProjectsListFilterInStructure';
   static const String structuresTypeFilterPath =
       '/ajax/getStructureTypeListForFilter';
 
-  /// Web Structure Form list (Update Forms → Works → Update Structure).
   static const String structureFormListPath = '/ajax/getStructuresList';
   static const String structureFormContractsFilterPath =
       '/ajax/getContractsFilterListInStructure';
   static const String structureFormWorkStatusFilterPath =
       '/ajax/getWorkStatusListInStructure';
 
-  /// Structure Form edit (pencil on Structure Form list).
   static const String structureFormGetPath = '/get-structure-form';
   static const String structureFormUpdatePath = '/update-structure-form';
   static const String structureFormContractsByProjectPath =
@@ -52,7 +48,6 @@ class ApiConstants {
   static const String structureFormResponsibleExecutivesPath =
       '/ajax/getResponsibleExecutives';
 
-  /// P6 Data History (Update Forms → Execution & Monitoring → Structure P6 Updates).
   static const String p6ContractsFilterPath =
       '/ajax/getContractsListFilterInP6New';
   static const String p6UploadTypesFilterPath =
@@ -70,7 +65,6 @@ class ApiConstants {
   static const String p6RevisedTemplateFile = 'P6RevisedFile.xlsx';
   static const String p6UpdateTemplateFile = 'P6UpdateFile.xlsx';
 
-  /// New Activities Update (Execution & Monitoring).
   static const String newActivitiesContractsPath =
       '/ajax/getNewActivitiesUpdateContractsList';
   static const String newActivitiesStructureTypesPath =
@@ -86,10 +80,8 @@ class ApiConstants {
   static const String newActivitiesLatestRowPath = '/ajax/getLatestRowData';
   static const String newActivitiesBindDataPath = '/ajax/bindData';
 
-  /// Modify Actuals (Execution & Monitoring) — structures by contract.
   static const String contractStructuresPath = '/ajax/getContractStructures';
 
-  /// Contracts / Tenders list + form.
   static const String contractsListPath = '/ajax/getContracts';
   static const String contractHodFilterPath =
       '/ajax/getDesignationsFilterListInContract';
@@ -110,7 +102,6 @@ class ApiConstants {
   static const String contractAddFormPath = '/add-contract-form';
   static const String contractGetPath = '/get-contract';
 
-  /// Contractors list + form.
   static const String contractorsListPath = '/ajax/get-contractor';
   static const String contractorAddFormPath = '/add-contractor-form';
   static const String contractorGetPath = '/get-contractor';
@@ -120,7 +111,6 @@ class ApiConstants {
       '/ajax/getPanNumberListFormContactor';
   static const String contractorExportPath = '/export-contractor';
 
-  /// Issues list + form (Update Forms → Issues). Export / save APIs later.
   static const String issuesListPath = '/ajax/getIssuesList';
   static const String issueHodFilterPath = '/ajax/getHODListFilterInIssue';
   static const String issueContractFilterPath =
@@ -149,7 +139,6 @@ class ApiConstants {
   static const String issueAddFormPath = '/add-issue-form';
   static const String issueGetPath = '/get-issue';
 
-  /// Design & Drawing (Update Forms).
   static const String designContractFilterPath =
       '/ajax/getContractListFilterInDesign';
   static const String designStructureTypeFilterPath =
@@ -163,7 +152,6 @@ class ApiConstants {
   static const String designExportPath = '/export-design';
   static const String designTemplatePath = '/download-design-template';
 
-  /// Web Add/Update Structure HTML forms (working on QA).
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';
   static const String structuresAddPath = '/add-structure';

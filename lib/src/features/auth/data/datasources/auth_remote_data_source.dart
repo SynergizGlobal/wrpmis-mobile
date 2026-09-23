@@ -14,17 +14,8 @@ class AuthRemoteDataSource {
   final Dio _dio;
   final SessionCookieManager _cookieManager;
 
-  /// Web form login: POST `/login` as `application/x-www-form-urlencoded`.
-  ///
-  /// QA/prod do not expose API-007 (`/api/v1/login` → 404). Use the same
-  /// form POST as the browser.
-  ///
-  /// Success → HTTP 302 `Location: …/home` + authenticated `JSESSIONID`.
-  /// Failure → HTTP 200 still on `/login` (body still has loginForm).
-  ///
-  /// Important: home / projects (`/api/v1/projects/list`) need that cookie.
-  /// A bare 302 often has **no** `Set-Cookie`, so we warm up GET `/login`
-  /// first, then hit `/home` once so the jar keeps the authenticated session.
+  /// Web form login (API `/api/v1/login` 404 on QA). Seeds JSESSIONID, POSTs
+  /// form without auto-redirect, then GET `/home` so the cookie jar keeps session.
   Future<AuthSessionModel> login({
     required String userId,
     required String password,
@@ -38,10 +29,8 @@ class AuthRemoteDataSource {
       },
     );
 
-    // 1) Seed anonymous JSESSIONID (same as opening the web login page).
     await _dio.get<dynamic>(ApiConstants.loginPath, options: sessionOptions);
 
-    // 2) Form POST — do not auto-follow; success is 302 → /home.
     final Response<dynamic> response = await _dio.post<dynamic>(
       ApiConstants.loginPath,
       data: <String, dynamic>{
@@ -79,7 +68,6 @@ class AuthRemoteDataSource {
       );
     }
 
-    // 3) Follow redirect once so cookie jar confirms the authenticated session.
     String homeBody = body;
     if (redirectedToHome) {
       final String homePath = _absoluteOrRelativePath(
@@ -195,7 +183,6 @@ class AuthRemoteDataSource {
     );
   }
 
-  /// Best-effort scrape of user fields from dashboard HTML (often absent).
   Map<String, String> _parseUserFieldsFromHtml(String html) {
     String? read(List<String> names) {
       for (final String name in names) {

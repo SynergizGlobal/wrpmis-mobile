@@ -32,9 +32,7 @@ class DashboardRemoteDataSource {
     return _asMap(response.data);
   }
 
-  /// Prefer API-003 `GET /api/v1/projects/list` when deployed.
-  /// On QA it 404s — fall back to the web Projects page (`GET /project`)
-  /// and parse `#project_table` (same source that worked before).
+  /// API-003 when deployed; on QA 404 fall back to web `/project` HTML table.
   Future<List<Map<String, dynamic>>> fetchProjects() async {
     final List<Map<String, dynamic>>? fromApi = await _tryFetchProjectsApi();
     if (fromApi != null) {
@@ -112,9 +110,7 @@ class DashboardRemoteDataSource {
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
         return _asListOfMaps(jsonDecode(trimmed));
-      } catch (_) {
-        // Fall through to HTML table parse.
-      }
+      } catch (_) {}
     }
     return ProjectPageParser.parse(body);
   }

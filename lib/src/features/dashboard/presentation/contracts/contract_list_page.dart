@@ -11,7 +11,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_fo
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/providers/contract_list_providers.dart';
 
-/// Update Forms → Contracts/Tenders → Contract.
 class ContractListPage extends ConsumerStatefulWidget {
   const ContractListPage({super.key});
 

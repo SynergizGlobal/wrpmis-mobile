@@ -9,7 +9,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/contractor
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/providers/contractor_providers.dart';
 
-/// Update Forms → Contracts/Tenders → Contractor.
 class ContractorPage extends ConsumerStatefulWidget {
   const ContractorPage({super.key});
 

@@ -10,7 +10,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/issue_list
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/providers/issue_form_providers.dart';
 
-/// Add / Update Issue. Save APIs later.
 class IssueFormPage extends ConsumerStatefulWidget {
   const IssueFormPage({super.key, this.issueId, this.seed});
 

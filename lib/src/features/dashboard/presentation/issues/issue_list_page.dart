@@ -11,7 +11,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_fo
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/providers/issue_list_providers.dart';
 
-/// Update Forms → Issues.
 class IssueListPage extends ConsumerStatefulWidget {
   const IssueListPage({super.key});
 

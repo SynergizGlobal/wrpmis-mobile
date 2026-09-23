@@ -9,7 +9,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/new_activi
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/providers/new_activities_update_providers.dart';
 
-/// Update Forms → Execution & Monitoring → New Activities Update.
 class NewActivitiesUpdatePage extends ConsumerStatefulWidget {
   const NewActivitiesUpdatePage({super.key});
 

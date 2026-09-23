@@ -9,7 +9,6 @@ import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/design_dra
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawing/providers/design_drawing_providers.dart';
 
-/// Update Forms → Design & Drawing.
 class DesignDrawingPage extends ConsumerStatefulWidget {
   const DesignDrawingPage({super.key});
 
@@ -553,8 +552,7 @@ class _DesignDrawingPageState extends ConsumerState<DesignDrawingPage>
               FilledButton(
                 onPressed: _hasFilters ? _clearFilters : null,
                 style: FilledButton.styleFrom(
-                  // Theme default is Size.fromHeight(52) → infinite width,
-                  // which breaks layout inside a Row.
+                  // Explicit size: theme tab height uses infinite width in Row.
                   minimumSize: const Size(0, 48),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                 ),
