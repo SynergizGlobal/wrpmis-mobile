@@ -6,9 +6,29 @@ class UtilityShiftingItem {
     this.utilityType,
     this.custodian,
     this.hod,
+    this.hodUserId,
     this.executionAgency,
     this.status,
     this.lastUpdate,
+    this.projectId,
+    this.locationName,
+    this.referenceNumber,
+    this.executedBy,
+    this.chainage,
+    this.latitude,
+    this.longitude,
+    this.impactedContractId,
+    this.requirementStage,
+    this.impactedElement,
+    this.affectedStructures,
+    this.targetDate,
+    this.scope,
+    this.completed,
+    this.unit,
+    this.startDate,
+    this.completionDate,
+    this.identification,
+    this.remarks,
   });
 
   final String id;
@@ -17,9 +37,29 @@ class UtilityShiftingItem {
   final String? utilityType;
   final String? custodian;
   final String? hod;
+  final String? hodUserId;
   final String? executionAgency;
   final String? status;
   final String? lastUpdate;
+  final String? projectId;
+  final String? locationName;
+  final String? referenceNumber;
+  final String? executedBy;
+  final String? chainage;
+  final String? latitude;
+  final String? longitude;
+  final String? impactedContractId;
+  final String? requirementStage;
+  final String? impactedElement;
+  final String? affectedStructures;
+  final String? targetDate;
+  final String? scope;
+  final String? completed;
+  final String? unit;
+  final String? startDate;
+  final String? completionDate;
+  final String? identification;
+  final String? remarks;
 
   bool get isValid =>
       (utilityShiftingId ?? '').isNotEmpty || id.isNotEmpty;
@@ -37,6 +77,26 @@ class UtilityShiftingItem {
       lastUpdate: _n(
         json['latest_progress_date'] ?? json['modified_date'],
       ),
+      projectId: _n(json['project_id_fk']),
+      locationName: _n(json['location_name']),
+      referenceNumber: _n(json['reference_number']),
+      executedBy: _n(json['executed_by']),
+      chainage: _n(json['chainage']),
+      latitude: _n(json['latitude']),
+      longitude: _n(json['longitude']),
+      impactedContractId: _n(json['impacted_contract_id_fk']),
+      requirementStage: _n(json['requirement_stage_fk']),
+      impactedElement: _n(json['impacted_element']),
+      affectedStructures: _n(json['affected_structures']),
+      targetDate: _n(json['planned_completion_date']),
+      scope: _n(json['scope']),
+      completed: _n(json['completed']),
+      unit: _n(json['unit_fk']),
+      startDate: _n(json['start_date']),
+      completionDate: _n(json['shifting_completion_date']),
+      identification: _n(json['identification']),
+      remarks: _n(json['remarks']),
+      hodUserId: _n(json['hod_user_id_fk']),
     );
   }
 

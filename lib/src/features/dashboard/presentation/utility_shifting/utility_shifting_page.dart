@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_global_loader.dart';
 import 'package:wr_pmis_mobile/src/core/widgets/app_select_sheet_field.dart';
@@ -8,6 +9,7 @@ import 'package:wr_pmis_mobile/src/core/widgets/global_dialog.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/project_form_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/utility_shifting_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/providers/utility_shifting_providers.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_form_page.dart';
 
 class UtilityShiftingPage extends ConsumerStatefulWidget {
   const UtilityShiftingPage({super.key});
@@ -195,7 +197,7 @@ class _UtilityShiftingPageState extends ConsumerState<UtilityShiftingPage>
             ),
             IconButton(
               tooltip: 'Add',
-              onPressed: () => _comingSoon('Add'),
+              onPressed: () => context.pushNamed(UtilityShiftingFormPage.routeName),
               icon: const Icon(Icons.add_rounded),
             ),
             IconButton(
@@ -746,7 +748,10 @@ class _UtilityShiftingPageState extends ConsumerState<UtilityShiftingPage>
                 shape: const CircleBorder(),
                 child: InkWell(
                   customBorder: const CircleBorder(),
-                  onTap: () => _comingSoon('Edit'),
+                  onTap: () => context.pushNamed(
+                    UtilityShiftingFormPage.routeName,
+                    extra: item,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: Icon(

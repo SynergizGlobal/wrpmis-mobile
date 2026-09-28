@@ -72,6 +72,80 @@ class UtilityShiftingRepository {
     }
   }
 
+  Future<Result<List<DropdownOption>>> getImpactedContracts(
+    String projectId,
+  ) async {
+    try {
+      return Right(await _api.fetchImpactedContracts(projectId));
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load contracts'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getRequirementStages(
+    String contractId,
+  ) async {
+    try {
+      return Right(await _api.fetchRequirementStages(contractId));
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load requirement stages'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<List<DropdownOption>>> getImpactedElements({
+    required String contractId,
+    required String stage,
+  }) async {
+    try {
+      return Right(
+        await _api.fetchImpactedElements(contractId: contractId, stage: stage),
+      );
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load impacted elements'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<Map<String, List<DropdownOption>>>> getAddFormOptions() async {
+    try {
+      return Right(await _api.fetchAddFormOptions());
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load form'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<UtilityShiftingItem?>> getDetail({
+    required String id,
+    required String utilityShiftingId,
+  }) async {
+    try {
+      return Right(
+        await _api.fetchDetail(id: id, utilityShiftingId: utilityShiftingId),
+      );
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to load record'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Result<String>> save(Map<String, dynamic> fields) async {
+    try {
+      return Right(await _api.save(fields));
+    } on DioException catch (e) {
+      return Left(Failure(e.message ?? 'Failed to save'));
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
   Future<Result<List<UtilityUploadItem>>> getUploads() async {
     try {
       return Right(await _api.fetchUploads());

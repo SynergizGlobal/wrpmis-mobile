@@ -161,6 +161,14 @@ class ApiConstants {
   static const String utilityShiftingListPath = '/ajax/getUtilityShiftingList';
   static const String utilityShiftingUploadsPath =
       '/ajax/getUtilityShiftingUploadsList';
+  static const String utilityImpactedContractsPath =
+      '/ajax/getImpactedContractsListForUSForm';
+  static const String utilityRequirementStagePath =
+      '/ajax/getReqStageListForUSForm';
+  static const String utilityImpactedElementPath =
+      '/ajax/getImpactedElementListForUSForm';
+  static const String utilityAddFormPath = '/add-utility-shifting';
+  static const String utilityGetPath = '/get-utility-shifting';
 
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';
