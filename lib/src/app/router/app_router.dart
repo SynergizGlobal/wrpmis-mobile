@@ -12,6 +12,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/con
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawing/design_drawing_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -215,6 +216,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: DesignDrawingPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const DesignDrawingPage(),
+      ),
+      GoRoute(
+        path: UtilityShiftingPage.routePath,
+        name: UtilityShiftingPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const UtilityShiftingPage(),
       ),
       GoRoute(
         path: ProfilePage.routePath,

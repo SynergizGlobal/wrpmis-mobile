@@ -18,6 +18,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/issues/issue_
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contract_list_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawing/design_drawing_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -499,6 +500,10 @@ class _UpdateFormsSectionView extends StatelessWidget {
       context.pushNamed(DesignDrawingPage.routeName);
       return;
     }
+    if (module.id == 'utility_shifting') {
+      context.pushNamed(UtilityShiftingPage.routeName);
+      return;
+    }
     final List<UpdateFormSubItem> subItems = module.subItems;
     if (subItems.isEmpty) {
       GlobalDialog.info(
@@ -615,13 +620,22 @@ class _UpdateFormModuleIcon extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: asset == null
           ? Icon(module.icon, color: colors.primary, size: 22)
-          : Image.asset(
-              asset,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => Icon(
-                module.icon,
-                color: colors.primary,
-                size: 22,
+          : Padding(
+              padding: const EdgeInsets.all(8),
+              child: ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  colors.primary,
+                  BlendMode.srcIn,
+                ),
+                child: Image.asset(
+                  asset,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => Icon(
+                    module.icon,
+                    color: colors.primary,
+                    size: 22,
+                  ),
+                ),
               ),
             ),
     );

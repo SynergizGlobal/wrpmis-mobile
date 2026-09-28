@@ -152,6 +152,16 @@ class ApiConstants {
   static const String designExportPath = '/export-design';
   static const String designTemplatePath = '/download-design-template';
 
+  static const String utilityLocationFilterPath =
+      '/ajax/getLocationListFilter';
+  static const String utilityCategoryFilterPath =
+      '/ajax/getUtilityCategoryListFilter';
+  static const String utilityTypeFilterPath = '/ajax/getUtilityTypeListFilter';
+  static const String utilityStatusFilterPath = '/ajax/getStatusListFilter';
+  static const String utilityShiftingListPath = '/ajax/getUtilityShiftingList';
+  static const String utilityShiftingUploadsPath =
+      '/ajax/getUtilityShiftingUploadsList';
+
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';
   static const String structuresAddPath = '/add-structure';
