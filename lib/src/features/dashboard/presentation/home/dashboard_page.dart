@@ -19,6 +19,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/con
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/contracts/contractor_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawing/design_drawing_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/validation/validate_data_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -502,6 +503,10 @@ class _UpdateFormsSectionView extends StatelessWidget {
     }
     if (module.id == 'utility_shifting') {
       context.pushNamed(UtilityShiftingPage.routeName);
+      return;
+    }
+    if (module.id == 'validate_data') {
+      context.pushNamed(ValidateDataPage.routeName);
       return;
     }
     final List<UpdateFormSubItem> subItems = module.subItems;

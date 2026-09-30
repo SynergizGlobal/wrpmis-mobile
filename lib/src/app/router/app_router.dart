@@ -15,6 +15,7 @@ import 'package:wr_pmis_mobile/src/features/dashboard/presentation/design_drawin
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/utility_shifting_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_form_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/utility_shifting/utility_shifting_page.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/presentation/validation/validate_data_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/modify_actuals_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/new_activities_update_page.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/execution_monitoring/structure_p6_updates_page.dart';
@@ -224,6 +225,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: UtilityShiftingPage.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const UtilityShiftingPage(),
+      ),
+      GoRoute(
+        path: ValidateDataPage.routePath,
+        name: ValidateDataPage.routeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ValidateDataPage(),
       ),
       GoRoute(
         path: UtilityShiftingFormPage.routePath,

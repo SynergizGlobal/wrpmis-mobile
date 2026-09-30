@@ -170,6 +170,20 @@ class ApiConstants {
   static const String utilityAddFormPath = '/add-utility-shifting';
   static const String utilityGetPath = '/get-utility-shifting';
 
+  static const String validateContractsPath =
+      '/ajax/getContractsInApprovableActivities';
+  static const String validateStructuresPath =
+      '/ajax/getStructuresInApprovableActivities';
+  static const String validateUpdatedByPath =
+      '/ajax/getUpdatedByListInApprovableActivities';
+  static const String validateActivitiesPath = '/ajax/getApprovableActivities';
+  static const String validateApprovePath = '/ajax/approveActivityProgress';
+  static const String validateRejectPath = '/ajax/rejectActivityProgress';
+  static const String validateApproveManyPath =
+      '/ajax/approveMultipleActivityProgress';
+  static const String validateRejectManyPath =
+      '/ajax/rejectMultipleActivityProgress';
+
   static const String structuresAddFormPath = '/add-structure-form';
   static const String structuresGetPath = '/get-structure';
   static const String structuresAddPath = '/add-structure';
