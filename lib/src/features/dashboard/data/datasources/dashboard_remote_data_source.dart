@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/core/network/dio_client.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/home_major_items_parser.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/project_page_parser.dart';
 
 class DashboardRemoteDataSource {
@@ -32,18 +33,104 @@ class DashboardRemoteDataSource {
     return _asMap(response.data);
   }
 
-  /// API-003 when deployed; on QA 404 fall back to web `/project` HTML table.
+  /// API-003 when deployed; then `GET /api/projects`; on QA 404 fall back
+  /// to the web `/project` HTML table.
   Future<List<Map<String, dynamic>>> fetchProjects() async {
-    final List<Map<String, dynamic>>? fromApi = await _tryFetchProjectsApi();
-    if (fromApi != null) {
-      return fromApi;
+    for (final String path in <String>[
+      ApiConstants.projectsApiPath,
+      ApiConstants.legacyProjectsPath,
+    ]) {
+      final List<Map<String, dynamic>>? fromApi =
+          await _tryFetchProjectsApi(path);
+      if (fromApi != null) {
+        return fromApi;
+      }
     }
     return _fetchProjectsFromWebPage();
   }
 
-  Future<List<Map<String, dynamic>>?> _tryFetchProjectsApi() async {
+  /// Major-item rows for the home "Status of Major Items" table.
+  ///
+  /// Project list JSON leaves `scope`, `completed`, and `worksInfo` null, and
+  /// `#project_table` has no those columns. The website builds this table
+  /// from `/home`.
+  Future<List<Map<String, dynamic>>> fetchMajorItemRows() async {
     final Response<dynamic> response = await _dio.get<dynamic>(
-      ApiConstants.projectsApiPath,
+      ApiConstants.homePath,
+      options: Options(
+        responseType: ResponseType.plain,
+        validateStatus: (int? status) =>
+            status != null && status >= 200 && status < 500,
+      ),
+    );
+    final String html = response.data?.toString() ?? '';
+    if (_isLoginHtml(html) ||
+        response.statusCode == 401 ||
+        response.statusCode == 403) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+        message: 'Session expired. Please sign in again.',
+      );
+    }
+    if (response.statusCode != 200) {
+      return const <Map<String, dynamic>>[];
+    }
+
+    final HomeMajorItemsParse parsed = HomeMajorItemsParser.parse(html);
+    final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[
+      ...parsed.rows,
+    ];
+    final Set<String> seenPaths = <String>{};
+    for (final String path in parsed.getPaths) {
+      if (rows.length > 400 || seenPaths.length >= 8) {
+        break;
+      }
+      if (!seenPaths.add(path)) {
+        continue;
+      }
+      rows.addAll(await _fetchMajorItemPath(path));
+    }
+    return rows;
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchMajorItemPath(String path) async {
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(
+        path,
+        options: Options(
+          responseType: ResponseType.plain,
+          validateStatus: (int? status) =>
+              status != null && status >= 200 && status < 500,
+        ),
+      );
+      if (response.statusCode != 200) {
+        return const <Map<String, dynamic>>[];
+      }
+      final String body = response.data?.toString() ?? '';
+      if (_isLoginHtml(body)) {
+        return const <Map<String, dynamic>>[];
+      }
+      final String trimmed = body.trimLeft();
+      if (trimmed.startsWith('<')) {
+        return HomeMajorItemsParser.parse(body).rows;
+      }
+      if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+        return const <Map<String, dynamic>>[];
+      }
+      final dynamic decoded = jsonDecode(trimmed);
+      return _asListOfMaps(decoded)
+          .where(HomeMajorItemsParser.looksLikeMajorItem)
+          .toList();
+    } catch (_) {
+      return const <Map<String, dynamic>>[];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> _tryFetchProjectsApi(String path) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(
+      path,
       options: Options(
         responseType: ResponseType.json,
         validateStatus: (int? status) =>

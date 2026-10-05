@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wr_pmis_mobile/src/core/result/failure.dart';
 import 'package:wr_pmis_mobile/src/core/result/result.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:wr_pmis_mobile/src/features/dashboard/data/datasources/home_major_items_parser.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/home_dashboard_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/update_form_item.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/repositories/dashboard_repository.dart';
@@ -68,6 +69,12 @@ class DashboardRepositoryImpl implements DashboardRepository {
   ) async {
     try {
       final List<Map<String, dynamic>> apiRows = await _remote.fetchProjects();
+      List<Map<String, dynamic>> majorRows = const <Map<String, dynamic>>[];
+      try {
+        majorRows = await _remote.fetchMajorItemRows();
+      } catch (_) {
+        majorRows = const <Map<String, dynamic>>[];
+      }
 
       final String target = projectTypeName.trim().toLowerCase();
       bool matchesType(Map<String, dynamic> row) {
@@ -95,41 +102,75 @@ class DashboardRepositoryImpl implements DashboardRepository {
         return false;
       }
 
-      final List<Map<String, dynamic>> filteredItems =
+      final List<Map<String, dynamic>> filteredProjects =
           apiRows.where(matchesType).toList();
 
       final List<String> projectNames = <String>[];
       final Set<String> seen = <String>{};
       final Map<String, String> projectIdsByName = <String, String>{};
+      final Map<String, String> namesById = <String, String>{};
 
       void collectName(Map<String, dynamic> row) {
         final String name =
             (row['project_name'] ?? row['projectName'] ?? '').toString().trim();
-        final String id =
-            (row['project_id'] ?? row['projectId'] ?? '').toString().trim();
+        final String id = (row['project_id'] ??
+                row['projectId'] ??
+                row['project_id_fk'] ??
+                '')
+            .toString()
+            .trim();
         if (name.isNotEmpty && seen.add(name)) {
           projectNames.add(name);
         }
         if (name.isNotEmpty && id.isNotEmpty) {
           projectIdsByName[name] = id;
+          namesById[id] = name;
         }
       }
 
-      for (final Map<String, dynamic> row in filteredItems) {
+      for (final Map<String, dynamic> row in filteredProjects) {
         collectName(row);
       }
 
-      final List<ProjectMajorItem> items = filteredItems
-          .where(_hasMajorItemData)
-          .map((Map<String, dynamic> row) {
+      final Set<String> allowedNames = projectNames
+          .map((String name) => name.toLowerCase())
+          .toSet();
+      final Set<String> allowedIds = projectIdsByName.values.toSet();
+
+      final List<Map<String, dynamic>> itemRows = <Map<String, dynamic>>[
+        ...filteredProjects.expand(_nestedMajorRows),
+        ...majorRows,
+      ].where((Map<String, dynamic> row) {
+        if (!HomeMajorItemsParser.looksLikeMajorItem(row) &&
+            !_hasMajorItemData(row)) {
+          return false;
+        }
+        return _belongsToProjects(row, allowedNames, allowedIds);
+      }).toList();
+
+      final List<ProjectMajorItem> items = itemRows.map((Map<String, dynamic> row) {
+        final String projectId = (row['project_id'] ??
+                row['projectId'] ??
+                row['project_id_fk'] ??
+                '')
+            .toString()
+            .trim();
+        final String projectName = (row['project_name'] ??
+                row['projectName'] ??
+                namesById[projectId] ??
+                'Unknown Project')
+            .toString()
+            .trim();
         final String scope = (row['scope'] ?? '-').toString();
         final String completed = (row['completed'] ?? '-').toString();
         return ProjectMajorItem(
-          projectName:
-              (row['project_name'] ?? row['projectName'] ?? 'Unknown Project')
-                  .toString()
-                  .trim(),
-          item: (row['structure_type'] ?? row['structureType'] ?? '-').toString(),
+          projectName: projectName,
+          item: (row['structure_type'] ??
+                  row['structureType'] ??
+                  row['item'] ??
+                  row['item_name'] ??
+                  '-')
+              .toString(),
           unit: _unitFrom(scope, completed),
           scope: _stripUnit(scope),
           completed: _stripUnit(completed),
@@ -174,6 +215,106 @@ class DashboardRepositoryImpl implements DashboardRepository {
         Failure('Something went wrong while loading project details.'),
       );
     }
+  }
+
+  Iterable<Map<String, dynamic>> _nestedMajorRows(
+    Map<String, dynamic> row,
+  ) sync* {
+    const List<String> nestedKeys = <String>[
+      'worksInfo',
+      'works_info',
+      'majorItems',
+      'major_items',
+      'items',
+      'projectMajorItemList',
+    ];
+    for (final String key in nestedKeys) {
+      yield* _childMajorRows(row[key], row);
+    }
+  }
+
+  Iterable<Map<String, dynamic>> _childMajorRows(
+    dynamic value,
+    Map<String, dynamic> parent,
+  ) sync* {
+    if (value is List) {
+      for (final dynamic entry in value) {
+        if (entry is Map) {
+          yield _stampProject(entry, parent);
+        }
+      }
+      return;
+    }
+    if (value is Map) {
+      final Map<String, dynamic> map = value.map(
+        (dynamic key, dynamic value) => MapEntry(key.toString(), value),
+      );
+      if (HomeMajorItemsParser.looksLikeMajorItem(map) ||
+          _hasMajorItemData(map)) {
+        yield _stampProject(map, parent);
+      }
+      for (final dynamic nested in map.values) {
+        if (nested is List || nested is Map) {
+          yield* _childMajorRows(nested, parent);
+        }
+      }
+    }
+  }
+
+  Map<String, dynamic> _stampProject(
+    Map<dynamic, dynamic> raw,
+    Map<String, dynamic> parent,
+  ) {
+    final Map<String, dynamic> row = raw.map(
+      (dynamic key, dynamic value) => MapEntry(key.toString(), value),
+    );
+    void fill(String key, List<String> parentKeys) {
+      final dynamic current = row[key];
+      final String text = current?.toString().trim() ?? '';
+      if (text.isNotEmpty && text.toLowerCase() != 'null') {
+        return;
+      }
+      for (final String parentKey in parentKeys) {
+        final dynamic value = parent[parentKey];
+        final String parentText = value?.toString().trim() ?? '';
+        if (parentText.isNotEmpty && parentText.toLowerCase() != 'null') {
+          row[key] = value;
+          return;
+        }
+      }
+    }
+
+    fill('project_name', <String>['project_name', 'projectName']);
+    fill('project_id', <String>['project_id', 'projectId', 'project_id_fk']);
+    fill('project_type_name', <String>['project_type_name', 'projectTypeName']);
+    fill('project_type_id_fk', <String>[
+      'project_type_id_fk',
+      'project_type_id',
+      'projectTypeId',
+    ]);
+    return row;
+  }
+
+  bool _belongsToProjects(
+    Map<String, dynamic> row,
+    Set<String> names,
+    Set<String> ids,
+  ) {
+    final String name =
+        (row['project_name'] ?? row['projectName'] ?? '').toString().trim();
+    final String id = (row['project_id'] ??
+            row['projectId'] ??
+            row['project_id_fk'] ??
+            '')
+        .toString()
+        .trim();
+    if (names.isEmpty && ids.isEmpty) {
+      return name.isNotEmpty || id.isNotEmpty;
+    }
+    if (name.isNotEmpty && names.contains(name.toLowerCase())) {
+      return true;
+    }
+    return id.isNotEmpty && ids.contains(id);
   }
 
   bool _hasMajorItemData(Map<String, dynamic> row) {

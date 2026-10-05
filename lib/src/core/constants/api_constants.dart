@@ -23,6 +23,14 @@ class ApiConstants {
   /// Web Projects page (`#project_table`) when API-003 404s on QA.
   static const String projectsPagePath = '/project';
 
+  /// Home project list that is still mapped on QA (`GET /api/projects`).
+  /// API-003 (`/api/v1/projects/list`) 404s once the session is logged in.
+  static const String legacyProjectsPath = '/api/projects';
+
+  /// Web "View Project Dashboard" page. Bare path 404s; `/{projectId}` is
+  /// session-protected (redirects to login when logged out).
+  static const String workOverviewDashboardPath = '/work-overview-dashboard';
+
   // ── Structures (Works) ────────────────────────────────────────────────
   /// Doc v1 paths (may 404 on QA until backend ships them).
   static const String structuresFormDataPath =

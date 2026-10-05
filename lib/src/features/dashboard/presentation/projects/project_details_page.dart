@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wr_pmis_mobile/src/app/theme/app_theme.dart';
+import 'package:wr_pmis_mobile/src/core/config/environment.dart';
+import 'package:wr_pmis_mobile/src/core/constants/api_constants.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/domain/entities/home_dashboard_data.dart';
 import 'package:wr_pmis_mobile/src/features/dashboard/presentation/projects/providers/project_details_provider.dart';
 
@@ -18,6 +21,25 @@ class ProjectDetailsPage extends ConsumerStatefulWidget {
 
 class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
   String? _selectedProject;
+
+  Future<void> _openProjectDashboard(String projectId) async {
+    final String base = Environment.wrBaseUrl;
+    final String root = base.endsWith('/') ? base : '$base/';
+    final String path = ApiConstants.workOverviewDashboardPath.replaceFirst(
+      RegExp(r'^/'),
+      '',
+    );
+    final Uri uri = Uri.parse('$root$path/$projectId');
+    final bool opened = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to open the project dashboard.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,21 +108,52 @@ class _ProjectDetailsPageState extends ConsumerState<ProjectDetailsPage> {
             : data.items
                 .where(
                   (ProjectMajorItem item) =>
-                      item.projectName == _selectedProject,
+                      item.projectName.toLowerCase() ==
+                      _selectedProject!.toLowerCase(),
                 )
                 .toList();
+
+    final String? projectId = _selectedProject == null
+        ? null
+        : data.projectIdsByName[_selectedProject!];
+    final String titleProject = _selectedProject ?? widget.projectTypeName;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(
-            'Overall Status of Major Items in ${widget.projectTypeName} Projects',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: scheme.onSurface,
+          Text.rich(
+            TextSpan(
+              text: 'Status of Major Items in ',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  ),
+              children: <InlineSpan>[
+                TextSpan(
+                  text: titleProject,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Center(
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: const StadiumBorder(),
+              ),
+              onPressed: projectId == null || projectId.isEmpty
+                  ? null
+                  : () => _openProjectDashboard(projectId),
+              child: const Text('View Project Dashboard'),
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -167,28 +220,26 @@ class _ProjectSidebar extends StatelessWidget {
         final String name = names[index];
         final bool isSelected = name == selected;
         return Material(
-          color: isSelected
-              ? scheme.primary.withValues(alpha: 0.12)
-              : palette.cardSurface,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? scheme.primary : palette.cardSurface,
+          borderRadius: BorderRadius.circular(16),
           child: InkWell(
             onTap: () => onSelect(name),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected ? scheme.primary : palette.borderSubtle,
-                  width: isSelected ? 1.6 : 1,
-                ),
+                borderRadius: BorderRadius.circular(16),
+                border: isSelected
+                    ? null
+                    : Border.all(color: palette.borderSubtle),
               ),
               child: Text(
                 name,
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? scheme.primary : scheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? scheme.onPrimary : scheme.onSurface,
                     ),
               ),
             ),
@@ -215,43 +266,56 @@ class _MajorItemsTable extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.cardSurface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: palette.borderSubtle),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: Column(
-          children: <Widget>[
-            _TableHeader(scheme: scheme),
-            Expanded(
-              child: items.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          'Major item progress is not in the project list API yet.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: palette.mutedText),
-                        ),
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: items.length,
-                      separatorBuilder: (_, _) => Divider(
-                        height: 1,
-                        color: palette.borderSubtle,
-                      ),
-                      itemBuilder: (BuildContext context, int index) {
-                        return _TableRow(
-                          item: items[index],
-                          index: index,
-                          palette: palette,
-                          scheme: scheme,
-                        );
-                      },
+        borderRadius: BorderRadius.circular(16),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final double tableWidth =
+                constraints.maxWidth < 560 ? 560 : constraints.maxWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                height: constraints.maxHeight,
+                child: Column(
+                  children: <Widget>[
+                    _TableHeader(scheme: scheme),
+                    Expanded(
+                      child: items.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  'No major item status for this project.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: palette.mutedText),
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: items.length,
+                              separatorBuilder: (_, _) => Divider(
+                                height: 1,
+                                color: palette.borderSubtle,
+                              ),
+                              itemBuilder: (BuildContext context, int index) {
+                                return _TableRow(
+                                  item: items[index],
+                                  index: index,
+                                  palette: palette,
+                                  scheme: scheme,
+                                );
+                              },
+                            ),
                     ),
-            ),
-          ],
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -449,46 +449,49 @@ class _ValidateDataPageState extends ConsumerState<ValidateDataPage>
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton(
-              onPressed: _hasFilters ? _clearFilters : null,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+            alignment: Alignment.centerLeft,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: <Widget>[
+                  _compactAction(
+                    label: 'Clear',
+                    icon: Icons.filter_alt_off_rounded,
+                    filled: true,
+                    onPressed: _hasFilters ? _clearFilters : null,
+                  ),
+                  if (_isPending) ...<Widget>[
+                    const SizedBox(width: 6),
+                    _compactAction(
+                      label: 'Approve',
+                      icon: Icons.check_rounded,
+                      onPressed:
+                          selected.isEmpty ? null : () => _approve(selected),
+                    ),
+                    const SizedBox(width: 6),
+                    _compactAction(
+                      label: 'Reject',
+                      icon: Icons.close_rounded,
+                      onPressed:
+                          selected.isEmpty ? null : () => _reject(selected),
+                    ),
+                    const SizedBox(width: 6),
+                    _compactAction(
+                      label: 'Enable completed',
+                      icon: Icons.lock_outline_rounded,
+                      onPressed: () => GlobalDialog.info(
+                        'Enable completed activities will be connected when that request is available.',
+                        title: 'Enable completed activities',
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              child: const Text('Clear Filters'),
             ),
           ),
-          if (_isPending) ...<Widget>[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: <Widget>[
-                OutlinedButton.icon(
-                  onPressed: selected.isEmpty ? null : () => _approve(selected),
-                  icon: const Icon(Icons.check_rounded, size: 18),
-                  label: const Text('Approve'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: selected.isEmpty ? null : () => _reject(selected),
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                  label: const Text('Reject'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => GlobalDialog.info(
-                    'Enable completed activities will be connected when that request is available.',
-                    title: 'Enable completed activities',
-                  ),
-                  icon: const Icon(Icons.lock_outline_rounded, size: 18),
-                  label: const Text('Enable completed'),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           TextField(
             controller: _searchController,
             onChanged: (String value) => setState(() {
@@ -702,6 +705,37 @@ class _ValidateDataPageState extends ConsumerState<ValidateDataPage>
         ],
       ),
     );
+  }
+
+  Widget _compactAction({
+    required String label,
+    required IconData icon,
+    required VoidCallback? onPressed,
+    bool filled = false,
+  }) {
+    final ButtonStyle style = ButtonStyle(
+      minimumSize: const WidgetStatePropertyAll<Size>(Size(0, 32)),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+      padding: const WidgetStatePropertyAll<EdgeInsets>(
+        EdgeInsets.symmetric(horizontal: 10),
+      ),
+      textStyle: const WidgetStatePropertyAll<TextStyle>(
+        TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+      ),
+    );
+    final Widget child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 15),
+        const SizedBox(width: 4),
+        Text(label),
+      ],
+    );
+    if (filled) {
+      return FilledButton(onPressed: onPressed, style: style, child: child);
+    }
+    return OutlinedButton(onPressed: onPressed, style: style, child: child);
   }
 
   Widget _roundAction({
